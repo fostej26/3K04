@@ -37,6 +37,12 @@ class Window(Tk):
         self.register_button.bind("<Button-1>", self.handle_register)  # Bind left mouse button click
         self.register_button.pack(pady=10)
 
+        #Create Change Password button
+
+        # self.changepass_button = Button (self, text="Change Password")
+        # self.changepass_button.bind("<Button-1>", self.handle_changepass)
+        # self.changepass_button.pack(pady=10)
+
     def hash_password(self, password):
         return hashlib.sha256(password.encode()).hexdigest()
 
@@ -76,6 +82,10 @@ class Window(Tk):
         self.message_label.config(text="Registration successful!", fg="green")
         self.username_entry.delete(0, 'end')  # Clear username entry
         self.password_entry.delete(0, 'end')  # Clear password entry
+
+    # def handle_changepass(self):
+    #     self.message_label.config(text="Please enter Username and new Password", fg="green")
+    #     username = self.username_entry.get()
 
 # Start the event loop.
 if __name__ == "__main__":
