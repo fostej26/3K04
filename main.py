@@ -13,7 +13,7 @@ class Window(Tk):
 
         # Main Frame for the login UI
         self.login_frame = Frame(self)
-        self.login_frame.pack(pady=20)
+        self.login_frame.pack(pady=0)
 
         # Subheading for Username
         subheading_username = Label(self.login_frame, text="Enter Username:", font=("Helvetica", 12))
@@ -98,16 +98,24 @@ class Window(Tk):
             self.username_entry.delete(0, 'end')
             self.password_entry.delete(0, 'end')
 
+            
     def init_pacemaker_page(self):
-        # Clear the login frame
-        for widget in self.login_frame.winfo_children():
-            widget.destroy()
+        # Clear the login frame and ensure it's destroyed
+        self.login_frame.pack_forget()  # Hide the login frame
+        self.login_frame.destroy()  # Remove the login frame entirely
 
-        self.navbar_frame = Frame(self)
-        self.navbar_frame.pack(fill="x")
+        # Create the navbar frame at the top
+        self.navbar_frame = Frame(self, bd=2)
+        self.navbar_frame.pack(side="top", fill="x")  # This makes it fixed at the top
 
         logout_button = Button(self.navbar_frame, text="Logout", command=self.show_login_page)
-        logout_button.pack(side="left", padx=5)
+        logout_button.pack(side="right", padx=5)
+
+        # You can now add more widgets for the pacemaker page below this
+        # For example, a Label to simulate content:
+        self.content_frame = Frame(self)
+        self.content_frame.pack(fill="both", expand=True)  # Fill the rest of the space
+
         
 
 
