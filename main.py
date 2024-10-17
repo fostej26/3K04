@@ -45,6 +45,9 @@ class Window(Tk):
         self.register_button.bind("<Button-1>", self.handle_register)  # Bind left mouse button click
         self.register_button.pack(pady=10)
 
+        #Create Change Password button
+
+
     def hash_password(self, password):
         return hashlib.sha256(password.encode()).hexdigest()
 
@@ -99,6 +102,10 @@ class Window(Tk):
             self.password_entry.delete(0, 'end')
 
             
+    # self.changepass_button = Button(self, text="Change Password")
+    # self.changepass_button.bind("<Button-1>", self.handle_changepass)
+    # self.changepass_button.pack(pady=10)
+
     def init_pacemaker_page(self):
         # Clear the login frame and ensure it's destroyed
         self.login_frame.pack_forget()  # Hide the login frame
@@ -108,6 +115,11 @@ class Window(Tk):
         self.navbar_frame = Frame(self, bd=2)
         self.navbar_frame.pack(side="top", fill="x")  # This makes it fixed at the top
 
+        #change password
+        change_password_button = Button(self.navbar_frame, text="Change Password", command=self.change_password_page)
+        change_password_button.pack(side="left", padx=5)
+
+        #return to the login screen
         logout_button = Button(self.navbar_frame, text="Logout", command=self.show_login_page)
         logout_button.pack(side="right", padx=5)
 
@@ -118,6 +130,63 @@ class Window(Tk):
 
         
 
+    def change_password_page(self):
+        for widget in self.navbar_frame.winfo_children():
+            widget.destroy()
+
+        self.change_password_window = Frame(self)
+        self.change_password_window.pack(pady=20)
+
+        username_label = Label(self.change_password_window, text="Enter username:")
+        username_label.pack(pady=5)
+
+        username = Entry(self.change_password_window, width=30)
+        username.pack(pady=5)
+
+        password_label = Label(self.change_password_window, text="Enter new password:")
+        password_label.pack(pady=5)
+
+        newpassword = Entry(self.change_password_window, width=30)
+        newpassword.pack(pady=5)
+
+        info_label = Label(self.change_password_window)
+        info_label.pack(pady=10)
+
+        enter_info_button = Button(self.change_password_window, text="Change", command=lambda: self.enter_info(username.get(),newpassword.get(), info_label))
+        enter_info_button.pack(pady=10)
+
+        back_button = Button(self.change_password_window, text="Back", command=self.show_login_page)
+        back_button.pack(pady=10)
+
+    def enter_info(self, username, newpassword, label):
+        if username == 0 or newpassword == 0:
+            label.config(text="No empty entries please")
+            return
+
+        new_hashed_password = self.hash_password(newpassword)
+
+        try:
+            with open("users.txt", "r") as f:
+                users = f.read().splitlines()
+
+            found_flag = False
+            for i, user in enumerate(users):
+                user_data = user.split()
+                if username == user_data[0]:
+                    users[i] = f"{username} {new_hashed_password}"
+                    found_flag = True
+                    break
+            if found_flag == False:
+                label.config(text="No existing user")
+                return
+
+            with open("users.txt", "w") as f:
+                f.write("\n".join(users))
+
+            label.config(text="Successfully changed password")
+
+        except FileNotFoundError:
+            label.config(text="users.txt does not exist")
 
     def show_login_page(self):
         # Clear the pacemaker page
@@ -126,6 +195,10 @@ class Window(Tk):
         self.destroy()
         # Recreate the login UI
         self.__init__()
+
+    # def handle_changepass(self):
+    #     self.message_label.config(text="Please enter Username and new Password", fg="green")
+    #     username = self.username_entry.get()
 
 # Start the event loop.
 if __name__ == "__main__":
