@@ -1,5 +1,11 @@
-from tkinter import Tk, Button, Entry, Label, Frame
+from tkinter import Tk, Button, Entry, Label, Frame, PhotoImage
 import hashlib
+import webbrowser
+from PIL import Image, ImageTk
+
+
+def callback(url):
+    webbrowser.open_new(url)
 
 class Window(Tk):
     def __init__(self):
@@ -36,12 +42,12 @@ class Window(Tk):
         self.message_label.pack(pady=10)
 
         # Create Sign In button
-        self.signin_button = Button(self.login_frame, text="Sign In")
+        self.signin_button = Button(self.login_frame, text="Sign In",cursor="hand2")
         self.signin_button.bind("<Button-1>", self.handle_signin)  # Bind left mouse button click
         self.signin_button.pack(pady=10)
 
         # Create Sign Up button
-        self.register_button = Button(self.login_frame, text="Register")
+        self.register_button = Button(self.login_frame, text="Register", cursor="hand2")
         self.register_button.bind("<Button-1>", self.handle_register)  # Bind left mouse button click
         self.register_button.pack(pady=10)
 
@@ -106,20 +112,44 @@ class Window(Tk):
     # self.changepass_button.pack(pady=10)
 
     def init_pacemaker_page(self):
-        # Clear the login frame
-        for widget in self.login_frame.winfo_children():
-            widget.destroy()
+        # Clear the login frame and ensure it's destroyed
+        self.login_frame.pack_forget()  # Hide the login frame
+        self.login_frame.destroy()  # Remove the login frame entirely
 
-        self.navbar_frame = Frame(self)
-        self.navbar_frame.pack(fill="x")
-
-        #change password
-        change_password_button = Button(self.navbar_frame, text="Change Password", command=self.change_password_page)
-        change_password_button.pack(side="left", padx=5)
+        # Create the navbar frame at the top
+        self.navbar_frame = Frame(self, bd=2)
+        self.navbar_frame.pack(side="top", fill="x")  # This makes it fixed at the top
 
         #return to the login screen
-        logout_button = Button(self.navbar_frame, text="Logout", command=self.show_login_page)
-        logout_button.pack(side="left", padx=5)
+        logout_button = Button(self.navbar_frame, text="Logout", cursor="hand2",command=self.show_login_page)
+        logout_button.pack(side="right", padx=5)
+
+        #change password
+        change_password_button = Button(self.navbar_frame, text="Change Password", cursor="hand2", command=self.change_password_page)
+        change_password_button.pack(side="right", padx=5)
+
+        groupname = Label(self.navbar_frame, text="The Pulse: Pacemaker", font=("Helvetica", 12))
+        groupname.pack(side="left", pady=5)
+
+        github_image = PhotoImage(file="assets/github.png")
+
+        # Open and resize the image
+        original_image = Image.open("assets/github.png")
+        resized_image = original_image.resize((35, 35))
+        github_image = ImageTk.PhotoImage(resized_image)
+
+        # Create the label with the resized image
+        link2 = Label(self.navbar_frame, image=github_image, cursor="hand2")
+        link2.pack(side="right", padx=5)
+        link2.bind("<Button-1>", lambda e: self.callback("https://github.com/fostej26/3K04"))
+
+        # Keep a reference to the image to prevent it from being garbage collected
+        link2.image = github_image
+
+        # You can now add more widgets for the pacemaker page below this
+        # For example, a Label to simulate content:
+        self.content_frame = Frame(self)
+        self.content_frame.pack(fill="both", expand=True)  # Fill the rest of the space
         
 
     def change_password_page(self):
@@ -147,7 +177,7 @@ class Window(Tk):
         enter_info_button = Button(self.change_password_window, text="Change", command=lambda: self.enter_info(username.get(),newpassword.get(), info_label))
         enter_info_button.pack(pady=10)
 
-        back_button = Button(self.change_password_window, text="Back", command=self.show_login_page)
+        back_button = Button(self.change_password_window, text="Back", command=self.init_pacemaker_page)
         back_button.pack(pady=10)
 
     def enter_info(self, username, newpassword, label):
