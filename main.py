@@ -126,8 +126,8 @@ class Window(Tk):
         for widget in self.navbar_frame.winfo_children():
             widget.destroy()
 
-        self.change_password_window = Frame(self)
-        self.change_password_window.pack(pady=20)
+        change_password_window = Frame(self)
+        change_password_window.pack(pady=20)
 
         username_label = Label(self.change_password_window, text="Enter username:")
         username_label.pack(pady=5)
