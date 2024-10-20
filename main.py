@@ -8,9 +8,10 @@ def callback(url):
     webbrowser.open_new(url)
 
 class Window(ctk.CTk):
+    
     def __init__(self):
         super().__init__()
-
+        username = ""
         self.title("3K04 Assignment 1")
         self.geometry("800x600")  # Set the window size
         self.configure(fg_color="white")  # Set the background color
@@ -163,7 +164,7 @@ class Window(ctk.CTk):
         logo_label.pack(side="left", padx=5)
 
         github_image = Image.open("assets/github.png")
-        resized_github_image = github_image.resize((60, 60))
+        resized_github_image = github_image.resize((40, 40))
         self.github_image = ImageTk.PhotoImage(resized_github_image)
 
         # Create the label with the resized image
@@ -273,7 +274,7 @@ class Window(ctk.CTk):
         'EGRAPH LABELS CURRENTLY OCCUPY 7 GRIDSPACES, GRAPH WILL OCCUPY 6, LABEL 1'
 
         # Add a label inside the egraphs_frame
-        egraphs_label = ctk.CTkLabel(egraphs_frame, text="Electrogram Plots", font=("Helvetica", 16))
+        egraphs_label = ctk.CTkLabel(egraphs_frame, text="Electrogram Plots", font=("Helvetica", 24))
         egraphs_label.grid(row=0, column=0, rowspan = 1, padx=5, pady=5, sticky="n")
 
         ventrical_label = ctk.CTkLabel(egraphs_frame, text="Ventrical Electrogram", font=("Helvetica", 16))
@@ -366,3 +367,4 @@ if __name__ == "__main__":
     ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue")
     window = Window()
     window.mainloop()
+    
