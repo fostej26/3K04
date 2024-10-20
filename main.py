@@ -277,31 +277,32 @@ class Window(ctk.CTk):
         VVI_button.grid(row=4, column=0, padx=5, pady=2, sticky="n")
 
         # add frame for plots
-        egraphs_frame = ctk.CTkFrame(self.content_frame, fg_color="white")
-        egraphs_frame.grid(row=0, column=2, rowspan=15, columnspan=15, padx=5, pady=10, sticky="nsew")
+        self.egraphs_frame = ctk.CTkFrame(self.content_frame, fg_color="white")
+        self.egraphs_frame.grid(row=0, column=2, rowspan=15, columnspan=15, padx=5, pady=10, sticky="nsew")
 
         # Configure the grid layout for the egraphs_frame
 
         for i in range(16):
-            egraphs_frame.grid_rowconfigure(i, weight=1)
-        egraphs_frame.grid_columnconfigure(0, weight=1)
+            self.egraphs_frame.grid_rowconfigure(i, weight=1)
+        self.egraphs_frame.grid_columnconfigure(0, weight=1)
 
         'EGRAPH LABELS CURRENTLY OCCUPY 7 GRIDSPACES, GRAPH WILL OCCUPY 6, LABEL 1'
 
         # Add a label inside the egraphs_frame
-        egraphs_label = ctk.CTkLabel(egraphs_frame, text="Electrogram Plots", font=("Helvetica", 16))
+        egraphs_label = ctk.CTkLabel(self.egraphs_frame, text="Electrogram Plots", font=("Helvetica", 16))
         egraphs_label.grid(row=0, column=0, rowspan=1, padx=5, pady=5, sticky="n")
-        egraphs_label = ctk.CTkLabel(egraphs_frame, text="Electrogram Plots", font=("Helvetica", 24))
+        egraphs_label = ctk.CTkLabel(self.egraphs_frame, text="Electrogram Plots", font=("Helvetica", 24))
         egraphs_label.grid(row=0, column=0, rowspan = 1, padx=5, pady=5, sticky="n")
 
-        ventrical_label = ctk.CTkLabel(egraphs_frame, text="Ventrical Electrogram", font=("Helvetica", 16))
-        ventrical_label.grid(row=1, column=0, rowspan=7, padx=5, pady=5, sticky="n")
+        ventrical_label = ctk.CTkLabel(self.egraphs_frame, text="Ventrical Electrogram", font=("Helvetica", 16))
+        ventrical_label.grid(row=1, column=0, padx=5, pady=5, sticky="n")
+
+        atrial_label = ctk.CTkLabel(self.egraphs_frame, text="Atrial Electrogram", font=("Helvetica", 16))
+        atrial_label.grid(row=8, column=0, padx=5, pady=5, sticky="n")
 
         self.ventricular_electrogram()
         self.atrium_electrogram()
 
-        atrial_label = ctk.CTkLabel(egraphs_frame, text="Atrial Electrogram", font=("Helvetica", 16))
-        atrial_label.grid(row=8, column=0, rowspan=7, padx=5, pady=5, sticky="n")
 
     def change_password_page(self):
         self.content_frame.pack_forget()  # Hide the login frame
@@ -386,9 +387,9 @@ class Window(ctk.CTk):
         ax.set_title("Ventricle Electrogram")
         ax.set_ylabel("Voltage (V)")
         ax.grid()
-        canvas = FigureCanvasTkAgg(fig, master=self.content_frame)  # Create canvas
+        canvas = FigureCanvasTkAgg(fig, master=self.egraphs_frame)  # Create canvas
         canvas.draw()  # Draw the canvas
-        canvas.get_tk_widget().grid(row=3, column=9, padx=5, pady=5, sticky="nsew")
+        canvas.get_tk_widget().grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 
     def atrium_electrogram(self):
         fig, ax = plt.subplots(figsize=(12, 6))  # Adjust size as needed
@@ -396,9 +397,9 @@ class Window(ctk.CTk):
         ax.set_title("Atrium Electrogram")
         ax.set_ylabel("Voltage (V)")
         ax.grid()
-        canvas = FigureCanvasTkAgg(fig, master=self.content_frame)  # Create canvas
+        canvas = FigureCanvasTkAgg(fig, master=self.egraphs_frame)  # Create canvas
         canvas.draw()  # Draw the canvas
-        canvas.get_tk_widget().grid(row=9, column=9, padx=5, pady=5, sticky="nsew")
+        canvas.get_tk_widget().grid(row=9, column=0, padx=5, pady=5, sticky="nsew")
 
 # Start the event loop.
 if __name__ == "__main__":
