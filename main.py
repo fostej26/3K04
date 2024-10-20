@@ -4,7 +4,7 @@ import hashlib
 import webbrowser
 from PIL import Image, ImageTk
 import matplotlib.pyplot as plt
-import matplotlib.animation
+import matplotlib.animation as animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 
@@ -313,7 +313,7 @@ class Window(ctk.CTk):
         self.state("zoomed")
 
         self.change_password_frame = ctk.CTkFrame(self)
-        self.change_password_frame.pack(pady=20)
+        self.change_password_frame.pack(padx=20, pady=20)
 
         username_label = ctk.CTkLabel(self.change_password_frame, text="Enter username:")
         username_label.pack(pady=5)
@@ -382,23 +382,39 @@ class Window(ctk.CTk):
         self.init_pacemaker_page()
 
     def ventricular_electrogram(self):
-        fig, ax = plt.subplots(figsize=(12, 6))  # Adjust size as needed
-        ax.plot()
+        fig, ax = plt.subplots(figsize=(12, 6))
         ax.set_title("Ventricle Electrogram")
         ax.set_ylabel("Voltage (V)")
         ax.grid()
-        canvas = FigureCanvasTkAgg(fig, master=self.egraphs_frame)  # Create canvas
-        canvas.draw()  # Draw the canvas
+        line, = ax.plot([], [], lw=2)
+        ax.set_xlim(0, 2 * np.pi)
+        ax.set_ylim(-1.5, 1.5)
+        def animate(i):
+            x = np.linspace(0, 2 * np.pi, 1000)
+            y = np.sin(x + i / 10.0)
+            line.set_data(x, y)
+            return line,
+        ani = animation.FuncAnimation(fig, animate, frames=1000, interval=50, blit=True)
+        canvas = FigureCanvasTkAgg(fig, master=self.egraphs_frame)
+        canvas.draw()
         canvas.get_tk_widget().grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 
     def atrium_electrogram(self):
         fig, ax = plt.subplots(figsize=(12, 6))  # Adjust size as needed
-        ax.plot()
         ax.set_title("Atrium Electrogram")
         ax.set_ylabel("Voltage (V)")
         ax.grid()
-        canvas = FigureCanvasTkAgg(fig, master=self.egraphs_frame)  # Create canvas
-        canvas.draw()  # Draw the canvas
+        line, = ax.plot([], [], lw=3)
+        ax.set_xlim(0, 4)
+        ax.set_ylim(-2, 2)
+        def animate(i):
+            x = np.linspace(0, 4, 1000)
+            y = np.sin(2 * np.pi * (x-0.01*i))
+            line.set_data(x, y)
+            return line,
+        ani = animation.FuncAnimation(fig, animate, frames=1000, interval=50, blit=True)
+        canvas = FigureCanvasTkAgg(fig, master=self.egraphs_frame)
+        canvas.draw()
         canvas.get_tk_widget().grid(row=9, column=0, padx=5, pady=5, sticky="nsew")
 
 # Start the event loop.
