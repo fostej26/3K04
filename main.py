@@ -310,10 +310,23 @@ class Window(ctk.CTk):
         self.navbar_frame.pack_forget()  # Hide the login frame
         self.navbar_frame.destroy()  # Remove the login frame entirely
 
-        self.state("zoomed")
 
         self.change_password_frame = ctk.CTkFrame(self)
         self.change_password_frame.pack(padx=20, pady=20)
+        self.state("zoomed")
+
+        logo_original_image = Image.open("assets/Pacemaker logo.png")
+        logo_resized_image = logo_original_image.resize((300, 200))
+        self.logo_image = ImageTk.PhotoImage(
+            logo_resized_image)  # Store the image in self to prevent garbage collection
+
+        # Create the label with the resized image
+        logo_label = ctk.CTkLabel(
+            self.change_password_frame,
+            image=self.logo_image,
+            text=""
+        )
+        logo_label.pack(pady=10)
 
         username_label = ctk.CTkLabel(self.change_password_frame, text="Enter username:")
         username_label.pack(pady=5)
@@ -417,10 +430,44 @@ class Window(ctk.CTk):
         canvas.draw()
         canvas.get_tk_widget().grid(row=9, column=0, padx=5, pady=5, sticky="nsew")
 
+class AOO():
+    def __init__(self):
+        LRL = 0
+        URL = 0
+        AtrAMP = 0
+        AtrPW = 0
+
+
+class VOO():
+    def __init__(self):
+        LRL = 0
+        URL = 0
+        VenAMP = 0
+        VenPW = 0
+
+class AAI():
+    def __init__(self):
+        LRL = 0
+        URL = 0
+        AtrAMP = 0
+        AtrPW = 0
+        ARP = 0
+
+class VVI():
+    def __init__(self):
+        LRL = 0
+        URL = 0
+        VenAMP = 0
+        VenPW = 0
+        VRP = 0
+
+
 # Start the event loop.
 if __name__ == "__main__":
     ctk.set_appearance_mode("light")  # Modes: "light" (standard), "dark", "system" (default)
     ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue")
     window = Window()
     window.mainloop()
+
+
     
