@@ -462,6 +462,11 @@ class VVI():
         VRP = 0
 
 
+# Add entry boxes for pacemaker values - save pacemaker values in users.txt
+# Add confirm button for select pacemaker mode
+# Consider the ranges for the programmable data
+
+
 # Start the event loop.
 if __name__ == "__main__":
     ctk.set_appearance_mode("light")  # Modes: "light" (standard), "dark", "system" (default)
