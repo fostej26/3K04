@@ -17,18 +17,21 @@ class Window(ctk.CTk):
     def __init__(self):
         super().__init__()
         username = ""
-        self.title("3K04 Assignment 1")
+        self.title("3K04 Assignment 1")  # Set the window title
         self.geometry("800x600")  # Set the window size
         self.configure(fg_color="white")  # Set the background color
-        self.init_login_page()
+        self.init_login_page()  # Invoke window set up function
 
         # Main Frame for the login UI
 
     def init_login_page(self):
+
+        # Create the window using customtkinter
         self.login_frame = ctk.CTkFrame(self, fg_color="white")
         self.login_frame.pack(padx=20, pady=20)
         self.state("zoomed")
 
+        # Open the logo png from the assests file
         logo_original_image = Image.open("assets/Pacemaker logo.png")
         logo_resized_image = logo_original_image.resize((300, 200))
         self.logo_image = ImageTk.PhotoImage(
@@ -42,7 +45,7 @@ class Window(ctk.CTk):
         )
         logo_label.pack(pady=10)
 
-        # Subheading for Username
+        # Label for Username
         subheading_username = ctk.CTkLabel(self.login_frame, text="Enter Username:", font=("Helvetica", 12))
         subheading_username.pack(pady=5)
 
@@ -50,7 +53,7 @@ class Window(ctk.CTk):
         self.username_entry = ctk.CTkEntry(self.login_frame, width=200)
         self.username_entry.pack(pady=5)
 
-        # Subheading for Password
+        # Label for Password
         subheading_password = ctk.CTkLabel(self.login_frame, text="Enter Password:", font=("Helvetica", 12))
         subheading_password.pack(pady=5)
 
@@ -58,7 +61,7 @@ class Window(ctk.CTk):
         self.password_entry = ctk.CTkEntry(self.login_frame, width=200, show='*')  # 'show' hides the password
         self.password_entry.pack(pady=5)
 
-        # Message Label
+        # Message Label for notifying user the state of their login
         self.message_label = ctk.CTkLabel(self.login_frame, text="", font=("Helvetica", 12), text_color="red")
         self.message_label.pack(pady=10)
 
@@ -66,38 +69,51 @@ class Window(ctk.CTk):
         self.signin_button = ctk.CTkButton(self.login_frame, text="Sign In", cursor="hand2", command=self.handle_signin)
         self.signin_button.pack(pady=10)
 
-        # Create Sign Up button
+        # Create Register button
         self.register_button = ctk.CTkButton(self.login_frame, text="Register", cursor="hand2",
                                              command=self.handle_register)
         self.register_button.pack(pady=10)
 
+    # Hash the passwords in the text file
     def hash_password(self, password):
         return hashlib.sha256(password.encode()).hexdigest()
 
+    # Function for processing sign in of user (already registered)
     def handle_signin(self):
+
+        # Retrieve the username and passwords from the tk_entries
         username = self.username_entry.get()
         password = self.password_entry.get()
         hashed_password = self.hash_password(password)
 
+        # Open the text file
         with open("users.txt", "r") as f:
+
+            # Separate the user list in the file
             users = f.read().splitlines()
             for user in users:
                 user_data = user.split()
-                if username == user_data[0]:
-                    if hashed_password == user_data[1]:
+                if username == user_data[0]:  # Check if the provided username matches the first entry in the line
+                    if hashed_password == user_data[1]:  # Check if the hashed password matches the second entry
+                        # in the line
                         self.message_label.configure(text="Sign In successful!", text_color="green")
                         self.init_pacemaker_page()  # Open pacemaker page
                         return
                     else:
-                        self.message_label.configure(text="Incorrect password. Please try again.")
+                        # Message displayed when password is incorrectly inputted
+                        self.message_label.configure(text="Incorrect password. Please try again.", text_color="red")
                         return
         self.message_label.configure(text="Username not found. Please register.")
 
+    #
     def handle_register(self):
+
+        # Retrieve the username and password from the text entries on the page
         username = self.username_entry.get()
         password = self.password_entry.get()
 
         try:
+            # Open the users text file
             with open("users.txt", "r") as f:
                 users = f.read().splitlines()
 
@@ -107,15 +123,21 @@ class Window(ctk.CTk):
                                                  text_color="red")
                     return
 
+                # Iterate through the list of users
                 for user in users:
+
+                    # If the entered username already exists, notify the user and return
                     if username == user.split()[0]:
                         self.message_label.configure(
                             text="Username already registered. Please sign in or choose a new username.")
                         return
 
+            # If it's a new user, add their name and password
             with open("users.txt", "a") as f:
                 f.write(f"{username} {self.hash_password(password)}\n")
             self.message_label.configure(text="Registration successful!", text_color="green")
+
+            # Clear the entry boxes
             self.username_entry.delete(0, 'end')  # Clear username entry
             self.password_entry.delete(0, 'end')  # Clear password entry
         except FileNotFoundError:
@@ -125,6 +147,7 @@ class Window(ctk.CTk):
             self.username_entry.delete(0, 'end')
             self.password_entry.delete(0, 'end')
 
+    # Create the pacemaker page after logging in
     def init_pacemaker_page(self):
         # Clear the login frame and ensure it's destroyed
         self.login_frame.pack_forget()  # Hide the login frame
@@ -139,9 +162,9 @@ class Window(ctk.CTk):
         # Return to the login screen
         logout_button = ctk.CTkButton(
             self.navbar_frame,
-            text="Logout",
+            text="Logout",  # Name of the button
             cursor="hand2",
-            command=self.show_login_page,
+            command=self.show_login_page,  # The function the button performs
             fg_color="red",  # Background color
             text_color="white",  # Text color (foreground)
             font=("Arial", 12)  # Font style and size
@@ -151,9 +174,9 @@ class Window(ctk.CTk):
         # Change password
         change_password_button = ctk.CTkButton(
             self.navbar_frame,
-            text="Change Password",
+            text="Change Password",  # Name of the button
             cursor="hand2",
-            command=self.change_password_page,
+            command=self.change_password_page,  # The function the button performs
             fg_color="white",
             border_width=1,  # Background color
             text_color="black",  # Text color (foreground)
@@ -174,6 +197,7 @@ class Window(ctk.CTk):
         )
         logo_label.pack(side="left", padx=5)
 
+        # Import the GitHub logo and place the resized image in a box
         github_image = Image.open("assets/github.png")
         resized_github_image = github_image.resize((40, 40))
         self.github_image = ImageTk.PhotoImage(resized_github_image)
@@ -183,30 +207,29 @@ class Window(ctk.CTk):
         link2.pack(side="right", padx=5)
         link2.bind("<Button-1>", lambda e: callback("https://github.com/fostej26/3K04"))
 
-        # Keep a reference to the image to prevent it from being garbage collected
-        # Keep a reference to the image to prevent it from being garbage collected
+        # Prevent garbage collection
         link2.image = self.github_image
 
-        # You can now add more widgets for the pacemaker page below this
-        # For example, a Label to simulate content:
+        # Create the content frame
         self.content_frame = ctk.CTkFrame(self, border_width=2, border_color="gray", fg_color="white")
-        self.content_frame.pack(fill="both", expand=True)  # Fill the rest of the space
+        self.content_frame.pack(fill="both", expand=True)
 
-        # Configure the grid layout for the content frame
+        # Create the content frame grid
         for i in range(16):
             self.content_frame.grid_rowconfigure(i, weight=1)
             self.content_frame.grid_columnconfigure(i, weight=1)
 
-        # Create a frame for connection status and place it in the grid
+        # Create the connection status frame for when we connect the Pacemaker
         connection_status_frame = ctk.CTkFrame(self.content_frame, fg_color="white", border_width=2,
                                                border_color="gray")
         connection_status_frame.grid(row=0, column=0, rowspan=2, columnspan=2, padx=5, pady=5, sticky="nsew")
 
-        # Add a label inside the connection status frame
+        # Create a connection status label
         connection_status_label = ctk.CTkLabel(connection_status_frame, text="Connection Status",
                                                font=("Helvetica", 12))
         connection_status_label.pack(padx=5, pady=5, side="top")
 
+        # This frame houses the button
         connect_buttons_frame = ctk.CTkFrame(self.content_frame, fg_color="white")
         connect_buttons_frame.grid(row=2, column=0, rowspan=2, columnspan=2, padx=5, pady=5, sticky="nsew")
 
