@@ -1,3 +1,4 @@
+from re import S
 from turtle import bgcolor, width
 import customtkinter as ctk
 import hashlib
@@ -7,21 +8,131 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
+import json
 
 def callback(url):
     webbrowser.open_new(url)
 
-class Window(ctk.CTk):
+
+class Mode:
+    def __init__(self):
+        self.name = ""
+        self.LRL = 0
+        self.URL = 0
+        self.AtrAMP = 0
+        self.AtrPW = 0
+
+    def set_name(self, name):
+        self.name = name
+
+    def set_params(self, LRL, URL, AtrAMP, AtrPW):
+        self.LRL = LRL
+        self.URL = URL
+        self.AtrAMP = AtrAMP
+        self.AtrPW = AtrPW
+
+    def get_params(self):
+        return self.LRL, self.URL, self.AtrAMP, self.AtrPW
+        
+
+class User:
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
     
+    def get_username(self):
+        return self.username
+    
+    def get_password(self):
+        return self.password
+
+class Window(ctk.CTk):
     def __init__(self):
         super().__init__()
-        username = ""
-        self.title("3K04 Assignment 1")  # Set the window title
-        self.geometry("800x600")  # Set the window size
-        self.configure(fg_color="white")  # Set the background color
-        self.init_login_page()  # Invoke window set up function
+        
+        # Initialize the user as an empty object
+        self.user = User("", "")  # Correctly initialize User
+        self.title("3K04 Assignment 1")
+        self.geometry("800x600")
+        self.configure(fg_color="white")
+        self.pacemaker_mode_var = ctk.StringVar(value="")
+        self.message_label = ctk.CTkLabel(self, text="")  # Create a message label for status messages
+        self.message_label.pack()  # Place the label in the window
+        self.init_login_page() 
 
-        # Main Frame for the login UI
+    def handle_register(self):
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+        self.user = User(username, password)
+
+        try:
+            with open("users.txt", "r") as f:
+                users = f.read().splitlines()
+
+            if len(users) >= 10:
+                self.message_label.configure(text="User limit reached. Cannot register more users.", text_color="red")
+                return
+
+            for user in users:
+                if username == user.split()[0]:
+                    self.message_label.configure(
+                        text="Username already registered. Please sign in or choose a new username.")
+                    return
+
+            with open("users.txt", "a") as f:
+                f.write(f"{username} {self.hash_password(password)}\n")
+            self.message_label.configure(text="Registration successful!", text_color="green")
+
+            self.username_entry.delete(0, 'end')
+            self.password_entry.delete(0, 'end')
+
+        except FileNotFoundError:
+            with open("users.txt", "w") as f:
+                f.write(f"{username} {self.hash_password(password)}\n")
+            self.message_label.configure(text="Registration successful!", text_color="green")
+            self.username_entry.delete(0, 'end')
+            self.password_entry.delete(0, 'end')
+
+
+    #CURRENTLY DOES NOT WORK, ONLY RELEVANT FOR A2
+    def save_parameters(self):
+        username = self.user.get_username()
+        self.mode = Mode()
+        self.mode.set_name(self.pacemaker_mode_var.get())
+        self.mode.set_params(
+            self.mode.LRL.get(),
+            self.mode.URL.get(),
+            self.mode.AtrAMP.get(),
+            self.mode.AtrPW.get()
+        )
+
+        user_data = {
+            "username": username,
+            "mode": {
+                "name": self.mode.name,
+                "LRL": self.mode.LRL,
+                "URL": self.mode.URL,
+                "AtrAMP": self.mode.AtrAMP,
+                "AtrPW": self.mode.AtrPW
+            }
+        }
+
+        try:
+            with open("users.json", "r") as f:
+                users = json.load(f)
+        except FileNotFoundError:
+            users = []
+
+        for user in users:
+            if user["username"] == username:
+                user["mode"] = user_data["mode"]
+                break
+        else:
+            users.append(user_data)
+
+        with open("users.json", "w") as f:
+            json.dump(users, f, indent=4)
+
 
     def init_login_page(self):
 
@@ -104,87 +215,96 @@ class Window(ctk.CTk):
                         return
         self.message_label.configure(text="Username not found. Please register.")
 
-    #
-    def handle_register(self):
 
-        # Retrieve the username and password from the text entries on the page
-        username = self.username_entry.get()
-        password = self.password_entry.get()
+    def enter_info(self, username, newpassword, label):
+
+        # Check if the entries are empty
+        if username == 0 or newpassword == 0:
+            label.configure(text="No empty entries please")
+            return
+
+        # Hash the newly entered password
+        new_hashed_password = self.hash_password(newpassword)
 
         try:
-            # Open the users text file
+            # Open the text file with user data
             with open("users.txt", "r") as f:
                 users = f.read().splitlines()
 
-                # Check if there are already 10 users
-                if len(users) >= 10:
-                    self.message_label.configure(text="User limit reached. Cannot register more users.",
-                                                 text_color="red")
-                    return
+            # Initialize a flag for if the username is found in the file
+            found_flag = False
 
-                # Iterate through the list of users
-                for user in users:
+            # Use the enumerate function to iterate through the indexed user file
+            for i, user in enumerate(users):
+                user_data = user.split()
 
-                    # If the entered username already exists, notify the user and return
-                    if username == user.split()[0]:
-                        self.message_label.configure(
-                            text="Username already registered. Please sign in or choose a new username.")
-                        return
+                # If the entered username matches the username at the index, add the newly hashed password
+                if username == user_data[0]:
+                    users[i] = f"{username} {new_hashed_password}"
 
-            # If it's a new user, add their name and password
-            with open("users.txt", "a") as f:
-                f.write(f"{username} {self.hash_password(password)}\n")
-            self.message_label.configure(text="Registration successful!", text_color="green")
+                    # Set the flag and break out of the loop
+                    found_flag = True
+                    break
 
-            # Clear the entry boxes
-            self.username_entry.delete(0, 'end')  # Clear username entry
-            self.password_entry.delete(0, 'end')  # Clear password entry
+            # If the flag hasn't been set, the entered user doesn't exist
+            if not found_flag:
+                label.configure(text="No existing user")
+                return
+
+            # Write to the user data file
+            with open("users.txt", "w") as f:
+                f.write("\n".join(users))
+
+            # Set the label status as successful
+            label.configure(text="Successfully changed password")
+
+        # File not found error
         except FileNotFoundError:
-            self.message_label.configure(text="file does not exist")
+            label.configure(text="users.txt does not exist")
 
     # Create the pacemaker page after logging in
     def init_pacemaker_page(self):
         # Clear the login frame and ensure it's destroyed
-        self.login_frame.pack_forget()  # Hide the login frame
-        self.login_frame.destroy()  # Remove the login frame entirely
+        self.login_frame.pack_forget()
+        self.login_frame.destroy()
 
         self.state("zoomed")
 
         # Create the navbar frame at the top
         self.navbar_frame = ctk.CTkFrame(self, fg_color="white")
-        self.navbar_frame.pack(side="top", fill="x")  # This makes it fixed at the top
+        self.navbar_frame.pack(side="top", fill="x")
 
-        # Return to the login screen
+        # Logout button
         logout_button = ctk.CTkButton(
             self.navbar_frame,
-            text="Logout",  # Name of the button
+            text="Logout",
             cursor="hand2",
-            command=self.show_login_page,  # The function the button performs
-            fg_color="red",  # Background color
-            text_color="white",  # Text color (foreground)
-            font=("Arial", 12)  # Font style and size
+            command=self.show_login_page,
+            fg_color="red",
+            text_color="white",
+            font=("Arial", 12)
         )
         logout_button.pack(side="right", padx=5)
 
-        # Change password
+        # Change password button
         change_password_button = ctk.CTkButton(
             self.navbar_frame,
-            text="Change Password",  # Name of the button
+            text="Change Password",
             cursor="hand2",
-            command=self.change_password_page,  # The function the button performs
+            command=self.change_password_page,
             fg_color="white",
-            border_width=1,  # Background color
-            text_color="black",  # Text color (foreground)
-            font=("Arial", 12)  # Font style and size
+            border_width=1,
+            text_color="black",
+            font=("Arial", 12)
         )
         change_password_button.pack(side="right", padx=5)
 
+        # Logo image setup
         logo_original_image = Image.open("assets/Pacemaker logo.png")
         logo_resized_image = logo_original_image.resize((150, 100))
-        self.logo_image = ImageTk.PhotoImage(
-            logo_resized_image)  # Store the image in self to prevent garbage collection
+        self.logo_image = ImageTk.PhotoImage(logo_resized_image)
 
-        # Create the label with the resized image
+        # Logo label
         logo_label = ctk.CTkLabel(
             self.navbar_frame,
             image=self.logo_image,
@@ -192,43 +312,37 @@ class Window(ctk.CTk):
         )
         logo_label.pack(side="left", padx=5)
 
-        # Import the GitHub logo and place the resized image in a box
+        # GitHub link
         github_image = Image.open("assets/github.png")
         resized_github_image = github_image.resize((40, 40))
         self.github_image = ImageTk.PhotoImage(resized_github_image)
 
-        # Create the label with the resized image
-        link2 = ctk.CTkLabel(self.navbar_frame, image=self.github_image, cursor="hand2", text="")  # Remove text
+        link2 = ctk.CTkLabel(self.navbar_frame, image=self.github_image, cursor="hand2", text="")
         link2.pack(side="right", padx=5)
         link2.bind("<Button-1>", lambda e: callback("https://github.com/fostej26/3K04"))
-
-        # Prevent garbage collection
         link2.image = self.github_image
 
-        # Create the content frame
+        # Content frame setup
         self.content_frame = ctk.CTkFrame(self, border_width=2, border_color="gray", fg_color="white")
         self.content_frame.pack(fill="both", expand=True)
 
-        # Create the content frame grid
+        # Configure content frame grid
         for i in range(16):
             self.content_frame.grid_rowconfigure(i, weight=1)
             self.content_frame.grid_columnconfigure(i, weight=1)
 
-        # Create the connection status frame for when we connect the Pacemaker
-        connection_status_frame = ctk.CTkFrame(self.content_frame, fg_color="white", border_width=2,
-                                               border_color="gray")
+        # Connection status frame
+        connection_status_frame = ctk.CTkFrame(self.content_frame, fg_color="white", border_width=2, border_color="gray")
         connection_status_frame.grid(row=0, column=0, rowspan=2, columnspan=2, padx=5, pady=5, sticky="nsew")
 
-        # Create a connection status label
-        connection_status_label = ctk.CTkLabel(connection_status_frame, text="Connection Status",
-                                               font=("Helvetica", 12))
+        connection_status_label = ctk.CTkLabel(connection_status_frame, text="Connection Status", font=("Helvetica", 12))
         connection_status_label.pack(padx=5, pady=5, side="top")
 
-        # This frame houses the buttons for actually connecting/disconnecting the PM
+         # This frame houses the buttons for actually connecting/disconnecting the PM
         connect_buttons_frame = ctk.CTkFrame(self.content_frame, fg_color="white")
         connect_buttons_frame.grid(row=2, column=0, rowspan=2, columnspan=2, padx=5, pady=5, sticky="nsew")
 
-        # Configure the grid layout for the connect_buttons_frame
+         # Configure the grid layout for the connect_buttons_frame
         connect_buttons_frame.grid_rowconfigure(0, weight=1)
         connect_buttons_frame.grid_rowconfigure(1, weight=1)
         connect_buttons_frame.grid_columnconfigure(0, weight=1)
@@ -260,47 +374,75 @@ class Window(ctk.CTk):
         )
         disconnect_pm_button.grid(row=1, column=0, padx=0, pady=5, sticky="nsew")
 
-        # Create the frame and grid for the PM modes radio buttons
+        # Pacemaker modes frame
         pacemaker_modes_frame = ctk.CTkFrame(self.content_frame, fg_color="white", border_width=2, border_color="gray")
-        pacemaker_modes_frame.grid(row=4, column=0, rowspan=11, columnspan=2, padx=5, pady=10, sticky="nsew")
+        pacemaker_modes_frame.grid(row=4, column=0, rowspan=5, columnspan=2, padx=5, pady=10, sticky="nsew")
 
-        # Configure the grid layout for the pacemaker_modes_frame
         for i in range(5):
             pacemaker_modes_frame.grid_rowconfigure(i, weight=1)
-
         pacemaker_modes_frame.grid_columnconfigure(0, weight=1)
 
-        'VARIABLE WILL BE USED FOR SETTING PACEMAKER MODES IN FUTURE'
-
+        # Variable to track pacemaker mode selection
         pacemaker_mode_var = ctk.StringVar(value="")
 
-        # Label for the PM modes tab
+        def mode_selected(*args):
+            if pacemaker_mode_var.get():
+                save_button.configure(state="normal")  # Enable save button if a mode is selected
+
+        # Trace changes in pacemaker mode selection
+        pacemaker_mode_var.trace_add("write", mode_selected)
+
+        # Pacemaker modes label
         pacemaker_modes_label = ctk.CTkLabel(pacemaker_modes_frame, text="Pacemaker Modes", font=("Helvetica", 16))
         pacemaker_modes_label.grid(row=0, column=0, padx=5, pady=5, sticky="n")
 
-        # AOO radio button
+        # Radio buttons for modes
         AOO_button = ctk.CTkRadioButton(pacemaker_modes_frame, text="AOO", font=("Helvetica", 12),
                                         variable=pacemaker_mode_var, value="AOO")
         AOO_button.grid(row=1, column=0, padx=5, pady=2, sticky="n")
 
-        # VOO radio button
         VOO_button = ctk.CTkRadioButton(pacemaker_modes_frame, text="VOO", font=("Helvetica", 12),
                                         variable=pacemaker_mode_var, value="VOO")
         VOO_button.grid(row=2, column=0, padx=5, pady=2, sticky="n")
 
-        # AAI radio button
         AAI_button = ctk.CTkRadioButton(pacemaker_modes_frame, text="AAI", font=("Helvetica", 12),
                                         variable=pacemaker_mode_var, value="AAI")
         AAI_button.grid(row=3, column=0, padx=5, pady=2, sticky="n")
 
-        # VVI radio button
         VVI_button = ctk.CTkRadioButton(pacemaker_modes_frame, text="VVI", font=("Helvetica", 12),
                                         variable=pacemaker_mode_var, value="VVI")
         VVI_button.grid(row=4, column=0, padx=5, pady=2, sticky="n")
 
-        # In the future, all radio buttons will correspond to the entries on the parameters frame
+        # Pacemaker parameters frame
+        parameters_frame = ctk.CTkFrame(self.content_frame, fg_color="white", border_width=2, border_color="gray")
+        parameters_frame.grid(row=9, column=0, rowspan=6, columnspan=2, padx=5, pady=10, sticky="nsew")
 
-        # Create electrogram graphs frame/grid for matplot charts
+        for i in range(6):
+            parameters_frame.grid_rowconfigure(i, weight=1)
+        parameters_frame.grid_columnconfigure(0, weight=1)
+
+        # Pacemaker parameters label
+        parameters_label = ctk.CTkLabel(parameters_frame, text="Pacemaker Parameters", font=("Helvetica", 16))
+        parameters_label.grid(row=0, column=0, padx=5, pady=5, sticky="n")
+
+        # Entry boxes for parameters
+        LRL_entry = ctk.CTkEntry(parameters_frame, placeholder_text="LRL")
+        LRL_entry.grid(row=1, column=0, padx=5, pady=5, sticky="n")
+
+        URL_entry = ctk.CTkEntry(parameters_frame, placeholder_text="URL")
+        URL_entry.grid(row=2, column=0, padx=5, pady=5, sticky="n")
+
+        AtrAMP_entry = ctk.CTkEntry(parameters_frame, placeholder_text="AtrAMP")
+        AtrAMP_entry.grid(row=3, column=0, padx=5, pady=5, sticky="n")
+
+        AtrPW_entry = ctk.CTkEntry(parameters_frame, placeholder_text="AtrPW")
+        AtrPW_entry.grid(row=4, column=0, padx=5, pady=5, sticky="n")
+
+        # Initially disabled save button
+        save_button = ctk.CTkButton(parameters_frame, text="Save Parameters", command=self.save_parameters, state="disabled")
+        save_button.grid(row=5, column=0, padx=5, pady=10, sticky="n")
+
+        # Electrogram graphs frame setup
         self.egraphs_frame = ctk.CTkFrame(self.content_frame, fg_color="white")
         self.egraphs_frame.grid(row=0, column=2, rowspan=15, columnspan=15, padx=5, pady=10, sticky="nsew")
 
@@ -308,9 +450,9 @@ class Window(ctk.CTk):
             self.egraphs_frame.grid_rowconfigure(i, weight=1)
         self.egraphs_frame.grid_columnconfigure(0, weight=1)
 
-        # Make labels for the charts frame and the individual plots
+        # Electrogram labels
         egraphs_label = ctk.CTkLabel(self.egraphs_frame, text="Electrogram Plots", font=("Helvetica", 24))
-        egraphs_label.grid(row=0, column=0, rowspan = 1, padx=5, pady=5, sticky="n")
+        egraphs_label.grid(row=0, column=0, rowspan=1, padx=5, pady=5, sticky="n")
 
         ventricle_label = ctk.CTkLabel(self.egraphs_frame, text="Ventricle Electrogram", font=("Helvetica", 16))
         ventricle_label.grid(row=1, column=0, padx=5, pady=5, sticky="n")
@@ -321,6 +463,7 @@ class Window(ctk.CTk):
         # Call the functions for making the plots
         self.ventricular_electrogram()
         self.atrium_electrogram()
+
 
     # Function for creating the change password page when the change PW button is clicked
     def change_password_page(self):
@@ -370,62 +513,14 @@ class Window(ctk.CTk):
         # Button that invokes the change PW backend function
         # The Lambda expression ensures the command only activates after the button is clicked
         enter_info_button = ctk.CTkButton(self.change_password_frame, text="Change",
-                                          command=lambda: self.handle_change_password(username.get(), newpassword.get(),
-                                                                                      info_label))
+                                          command=lambda: self.enter_info(username.get(), newpassword.get(),
+                                                                          info_label))
 
         enter_info_button.pack(pady=10)
 
         # Return to the pacemaker page button
         back_button = ctk.CTkButton(self.change_password_frame, text="Back", command=self.show_pacemaker_page)
         back_button.pack(pady=10)
-
-    # Backend function for changing the password
-    # The function takes the username, password, and message label as arguments
-    def handle_change_password(self, username, newpassword, label):
-
-        # Check if the entries are empty
-        if username == 0 or newpassword == 0:
-            label.configure(text="No empty entries please")
-            return
-
-        # Hash the newly entered password
-        new_hashed_password = self.hash_password(newpassword)
-
-        try:
-            # Open the text file with user data
-            with open("users.txt", "r") as f:
-                users = f.read().splitlines()
-
-            # Initialize a flag for if the username is found in the file
-            found_flag = False
-
-            # Use the enumerate function to iterate through the indexed user file
-            for i, user in enumerate(users):
-                user_data = user.split()
-
-                # If the entered username matches the username at the index, add the newly hashed password
-                if username == user_data[0]:
-                    users[i] = f"{username} {new_hashed_password}"
-
-                    # Set the flag and break out of the loop
-                    found_flag = True
-                    break
-
-            # If the flag hasn't been set, the entered user doesn't exist
-            if not found_flag:
-                label.configure(text="No existing user")
-                return
-
-            # Write to the user data file
-            with open("users.txt", "w") as f:
-                f.write("\n".join(users))
-
-            # Set the label status as successful
-            label.configure(text="Successfully changed password")
-
-        # File not found error
-        except FileNotFoundError:
-            label.configure(text="users.txt does not exist")
 
     # Function for setting up the login page
     def show_login_page(self):
@@ -509,36 +604,6 @@ class Window(ctk.CTk):
         canvas.draw()
         canvas.get_tk_widget().grid(row=9, column=0, padx=5, pady=5, sticky="nsew")
 
-class AOO():
-    def __init__(self):
-        LRL = 0
-        URL = 0
-        AtrAMP = 0
-        AtrPW = 0
-
-
-class VOO():
-    def __init__(self):
-        LRL = 0
-        URL = 0
-        VenAMP = 0
-        VenPW = 0
-
-class AAI():
-    def __init__(self):
-        LRL = 0
-        URL = 0
-        AtrAMP = 0
-        AtrPW = 0
-        ARP = 0
-
-class VVI():
-    def __init__(self):
-        LRL = 0
-        URL = 0
-        VenAMP = 0
-        VenPW = 0
-        VRP = 0
 
 
 # Add entry boxes for pacemaker values - save pacemaker values in users.txt
