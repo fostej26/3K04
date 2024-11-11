@@ -11,7 +11,6 @@ import numpy as np
 def callback(url):
     webbrowser.open_new(url)
 
-
 class Window(ctk.CTk):
     
     def __init__(self):
@@ -141,11 +140,7 @@ class Window(ctk.CTk):
             self.username_entry.delete(0, 'end')  # Clear username entry
             self.password_entry.delete(0, 'end')  # Clear password entry
         except FileNotFoundError:
-            with open("users.txt", "w") as f:
-                f.write(f"{username} {self.hash_password(password)}\n")
-            self.message_label.configure(text="Registration successful!", text_color="green")
-            self.username_entry.delete(0, 'end')
-            self.password_entry.delete(0, 'end')
+            self.message_label.configure(text="file does not exist")
 
     # Create the pacemaker page after logging in
     def init_pacemaker_page(self):
@@ -375,8 +370,8 @@ class Window(ctk.CTk):
         # Button that invokes the change PW backend function
         # The Lambda expression ensures the command only activates after the button is clicked
         enter_info_button = ctk.CTkButton(self.change_password_frame, text="Change",
-                                          command=lambda: self.enter_info(username.get(), newpassword.get(),
-                                                                          info_label))
+                                          command=lambda: self.handle_change_password(username.get(), newpassword.get(),
+                                                                                      info_label))
 
         enter_info_button.pack(pady=10)
 
@@ -386,7 +381,7 @@ class Window(ctk.CTk):
 
     # Backend function for changing the password
     # The function takes the username, password, and message label as arguments
-    def enter_info(self, username, newpassword, label):
+    def handle_change_password(self, username, newpassword, label):
 
         # Check if the entries are empty
         if username == 0 or newpassword == 0:
