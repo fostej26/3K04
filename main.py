@@ -14,6 +14,10 @@ import json
 def callback(url):
     webbrowser.open_new(url)
 
+def get_params_json(param):
+    data = json.loads('{"url":444, "lrl":555}')
+    return data[param]
+
 
 class Mode:
     def __init__(self):
@@ -442,6 +446,7 @@ class Window(ctk.CTk):
         parameters_label = ctk.CTkLabel(parameters_frame, text="Pacemaker Parameters", font=("Helvetica", 16))
         parameters_label.grid(row=0, column=0, padx=5, pady=5, sticky="n")
 
+
         # Entry boxes for parameters
         LRL_entry = ctk.CTkEntry(parameters_frame, placeholder_text="LRL")
         LRL_entry.grid(row=1, column=0, padx=5, pady=5, sticky="n")
@@ -588,6 +593,8 @@ class Window(ctk.CTk):
         canvas = FigureCanvasTkAgg(fig, master=self.egraphs_frame)
         canvas.draw()
         canvas.get_tk_widget().grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
+
+
 
     def atrium_electrogram(self):
 
