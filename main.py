@@ -10,6 +10,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import json
 
+# JAAVIN commit test
+
 def callback(url):
     webbrowser.open_new(url)
 
