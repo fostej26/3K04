@@ -10,7 +10,6 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import json
 
-# JAAVIN commit test
 
 def callback(url):
     webbrowser.open_new(url)
@@ -414,6 +413,22 @@ class Window(ctk.CTk):
         VVI_button = ctk.CTkRadioButton(pacemaker_modes_frame, text="VVI", font=("Helvetica", 12),
                                         variable=pacemaker_mode_var, value="VVI")
         VVI_button.grid(row=4, column=0, padx=5, pady=2, sticky="n")
+
+        AOOR_button = ctk.CTkRadioButton(pacemaker_modes_frame, text="AOOR", font=("Helvetica", 12),
+                                        variable=pacemaker_mode_var, value="AOOR")
+        AOOR_button.grid(row=1, column=1, padx=5, pady=2, sticky="n")
+
+        VOOR_button = ctk.CTkRadioButton(pacemaker_modes_frame, text="VOOR", font=("Helvetica", 12),
+                                         variable=pacemaker_mode_var, value="VOOR")
+        VOOR_button.grid(row=2, column=1, padx=5, pady=2, sticky="n")
+
+        AAIR_button = ctk.CTkRadioButton(pacemaker_modes_frame, text="AAIR", font=("Helvetica", 12),
+                                         variable=pacemaker_mode_var, value="AAIR")
+        AAIR_button.grid(row=3, column=1, padx=5, pady=2, sticky="n")
+
+        VVIR_button = ctk.CTkRadioButton(pacemaker_modes_frame, text="VVIR", font=("Helvetica", 12),
+                                         variable=pacemaker_mode_var, value="VVIR")
+        VVIR_button.grid(row=4, column=1, padx=5, pady=2, sticky="n")
 
         # Pacemaker parameters frame
         parameters_frame = ctk.CTkFrame(self.content_frame, fg_color="white", border_width=2, border_color="gray")
