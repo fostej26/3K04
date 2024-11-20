@@ -19,6 +19,12 @@ def output_data(array, count):
     for i in range(0, len(array)):
         print(f'Count: {count}, Byte #: {i}, Value: {array[i]}')
 
+
+
+#def send_params_to_pacemaker()
+
+
+
 while flag:
     first_byte = port.read(1)
     # Check that first "sync" byte is correct
