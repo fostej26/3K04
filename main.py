@@ -108,7 +108,7 @@ class Window(ctk.CTk):
         self.mode = Mode()
         mode_name = self.pacemaker_mode_var.get()
         self.mode.set_name(mode_name)
-        self.mode.set_params(
+        self.mode.set_params( ##create multiple frames for each mode
             self.LRL_entry.get(),
             self.URL_entry.get(),
             self.AtrAMP_entry.get(),
@@ -121,15 +121,12 @@ class Window(ctk.CTk):
             self.valid_input_label.grid_remove()
             self.invalid_input_label.grid(row=6, column=0, padx=5, pady=5, sticky="n")
             return
-        user_data = {
-            "username": username,
-            "mode": {
-                "name": self.mode.name,
-                "LRL": self.mode.LRL,
-                "URL": self.mode.URL,
-                "AtrAMP": self.mode.AtrAMP,
-                "AtrPW": self.mode.AtrPW
-            }
+        mode_data = {
+            "name": self.mode.name,
+            "LRL": self.mode.LRL,
+            "URL": self.mode.URL,
+            "AtrAMP": self.mode.AtrAMP,
+            "AtrPW": self.mode.AtrPW
         }
         try:
             with open("parameters.json", "r") as f:
@@ -139,10 +136,12 @@ class Window(ctk.CTk):
 
         for user in users:
             if user["username"] == username:
-                user["mode"] = user_data["mode"]
+                if "modes" not in user:
+                    user["modes"] = []
+                user["modes"].append(mode_data)
                 break
         else:
-            users.append(user_data)
+            users.append({"username": username, "modes": [mode_data]})
 
         with open("parameters.json", "w") as f:
             json.dump(users, f, indent=4)
@@ -456,7 +455,7 @@ class Window(ctk.CTk):
         parameters_label = ctk.CTkLabel(parameters_frame, text="Pacemaker Parameters", font=("Helvetica", 16))
         parameters_label.grid(row=0, column=0, padx=5, pady=5, sticky="n")
 
-        # Entry boxes for parameters
+        # Entry boxes for parameters ##FIX FOR ALL MODES
         self.LRL_entry = ctk.CTkEntry(parameters_frame, placeholder_text="LRL")
         self.LRL_entry.grid(row=1, column=0, padx=5, pady=5, sticky="n")
 
