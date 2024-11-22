@@ -9,6 +9,7 @@ import matplotlib.animation as animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import json
+import serial 
 
 def is_float(s):
     return s.replace('.', '', 1).isdigit() and s.count('.') <= 1
@@ -41,7 +42,6 @@ class Mode:
     def get_params(self):
         return self.LRL, self.URL, self.AtrAMP, self.AtrPW
         
-
 class User:
     def __init__(self, username, password):
         self.username = username
@@ -58,6 +58,7 @@ class Window(ctk.CTk):
         super().__init__()
         
         # Initialize the user as an empty object
+        self.newserial = None
         self.user = User("", "")  # Correctly initialize User
         self.title("3K04 Assignment 1")
         self.geometry("800x600")
@@ -349,8 +350,8 @@ class Window(ctk.CTk):
         connection_status_frame = ctk.CTkFrame(self.content_frame, fg_color="white", border_width=2, border_color="gray")
         connection_status_frame.grid(row=0, column=0, rowspan=2, columnspan=2, padx=5, pady=5, sticky="nsew")
 
-        connection_status_label = ctk.CTkLabel(connection_status_frame, text="Connection Status", font=("Helvetica", 12))
-        connection_status_label.pack(padx=5, pady=5, side="top")
+        self.connection_status_label = ctk.CTkLabel(connection_status_frame, text="Not connected", font=("Helvetica", 12))
+        self.connection_status_label.pack(padx=5, pady=5, side="top")
 
          # This frame houses the buttons for actually connecting/disconnecting the PM
         connect_buttons_frame = ctk.CTkFrame(self.content_frame, fg_color="white")
@@ -366,7 +367,7 @@ class Window(ctk.CTk):
             connect_buttons_frame,
             text="Connect Pacemaker",
             cursor="hand2",
-            # command= connect pacemaker function laterrrr
+            command= self.connect_pm,
             fg_color="white",
             border_width=2,  # Background color
             text_color="black",  # Text color (foreground)
@@ -379,7 +380,7 @@ class Window(ctk.CTk):
             connect_buttons_frame,
             text="Disconnect Pacemaker",
             cursor="hand2",
-            # command= connect pacemaker function laterrrr
+            #command= connect pacemaker function laterrrr
             fg_color="white",
             border_width=2,  # Background color
             text_color="black",  # Text color (foreground)
@@ -638,11 +639,48 @@ class Window(ctk.CTk):
         canvas.draw()
         canvas.get_tk_widget().grid(row=9, column=0, padx=5, pady=5, sticky="nsew")
 
+    def connect_pm(self):
+        """Attempts to connect to the pacemaker."""
+        try:
+            self.newserial = serial.Serial(
+                port="COM4", 
+                baudrate=115200, 
+                timeout=10, 
+                parity=serial.PARITY_NONE, 
+                stopbits=serial.STOPBITS_ONE, 
+                bytesize=serial.EIGHTBITS
+            )
+            self.update_connection_status()  # Update the label on successful connection
+        except serial.SerialException as e:
+            self.newserial = None
+            print(f"Failed to connect: {e}")
+            self.update_connection_status()
 
+    def isConnected(self):
+        """Returns the connection status as a string."""
+        if self.newserial and self.newserial.is_open:
+            return f"Pacemaker is connected on {self.newserial.port}"
+        else:
+            return "Pacemaker is not connected. Please check the connection."
+
+    def update_connection_status(self):
+        """Updates the connection status label."""
+        status_text = self.isConnected()
+        self.connection_status_label.configure(text=status_text)
+
+    def disconnect_pm(self):
+        """Attempts to disconnect from the pacemaker."""
+        if self.newserial and self.newserial.is_open:
+            self.newserial.close()
+            print("Disconnected from pacemaker.")
+        else:
+            print("No connection to disconnect.")
+        self.update_connection_status()
 
 # Add entry boxes for pacemaker values - save pacemaker values in users.txt
 # Add confirm button for select pacemaker mode
 # Consider the ranges for the programmable data
+
 
 
 # Start the event loop
