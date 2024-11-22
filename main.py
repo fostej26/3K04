@@ -1,4 +1,4 @@
-from re import S
+from re import L, S
 from turtle import bgcolor, color, width
 import customtkinter as ctk
 import hashlib
@@ -10,6 +10,11 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import json
 
+from yarl import URL
+
+def checkparams(LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW):
+    pass
+
 def is_float(s):
     return s.replace('.', '', 1).isdigit() and s.count('.') <= 1
 
@@ -20,7 +25,6 @@ def get_params_json(param):
     data = json.loads('{"url":444, "lrl":555}')
     return data[param]
 
-
 class Mode:
     def __init__(self):
         self.name = ""
@@ -28,18 +32,33 @@ class Mode:
         self.URL = 0
         self.AtrAMP = 0
         self.AtrPW = 0
+        self.VenAMP = 0
+        self.VenPW = 0
+        self.AtrSens = 0
+        self.ARP = 0
+        self.PVARP = 0
+        self.VenSens = 0
+        self.VRP = 0
 
     def set_name(self, name):
         self.name = name
 
-    def set_params(self, LRL, URL, AtrAMP, AtrPW):
+    def set_params(self, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, AtrSens, ARP, PVARP, VenSens, VRP):
         self.LRL = LRL
         self.URL = URL
         self.AtrAMP = AtrAMP
         self.AtrPW = AtrPW
+        self.VenAMP = VenAMP
+        self.VenPW = VenPW
+        self.AtrSens = AtrSens
+        self.ARP = ARP
+        self.PVARP = PVARP
+        self.VenSens = VenSens
+        self.VRP = VRP
+
 
     def get_params(self):
-        return self.LRL, self.URL, self.AtrAMP, self.AtrPW
+        return self.LRL, self.URL, self.AtrAMP, self.AtrPW, self.VenAMP, self.VenPW, self.AtrSens, self.ARP, self.PVARP, self.VenSens, self.VRP
         
 
 class User:
@@ -108,14 +127,29 @@ class Window(ctk.CTk):
         self.mode = Mode()
         mode_name = self.pacemaker_mode_var.get()
         self.mode.set_name(mode_name)
-        self.mode.set_params( ##create multiple frames for each mode
-            self.LRL_entry.get(),
-            self.URL_entry.get(),
-            self.AtrAMP_entry.get(),
-            self.AtrPW_entry.get()
+        def safe_get(entry, default=""):
+            try:
+                output = entry.get()
+                return output
+            except:
+                return ""
+
+        self.mode.set_params(
+            LRL=safe_get(self.LRL_entry),
+            URL=safe_get(self.URL_entry),
+            AtrAMP=safe_get(getattr(self, 'AtrAMP_entry', None)),
+            AtrPW=safe_get(getattr(self, 'AtrPW_entry', None)),
+            VenAMP=safe_get(getattr(self, 'VenAMP_entry', None)),
+            VenPW=safe_get(getattr(self, 'VenPW_entry', None)),
+            AtrSens=safe_get(getattr(self, 'AtrSens_entry', None)),
+            ARP=safe_get(getattr(self, 'ARP_entry', None)),
+            PVARP=safe_get(getattr(self, 'PVARP_entry', None)),
+            VenSens=safe_get(getattr(self, 'VenSens_entry', None)),
+            VRP=safe_get(getattr(self, 'VRP_entry', None))
         )
-        if all(is_float(param) for param in [self.LRL_entry.get(), self.URL_entry.get(), self.AtrAMP_entry.get(), self.AtrPW_entry.get()]):
-            self.invalid_input_label.grid_remove()  # Hide the label initially
+
+        
+        if all(param == "" or is_float(param) for param in [self.mode.LRL, self.mode.URL, self.mode.AtrAMP, self.mode.AtrPW, self.mode.VenAMP, self.mode.VenPW]):
             self.valid_input_label.grid(row=6, column=0, padx=5, pady=5, sticky="n")
         else:
             self.valid_input_label.grid_remove()
@@ -126,7 +160,14 @@ class Window(ctk.CTk):
             "LRL": self.mode.LRL,
             "URL": self.mode.URL,
             "AtrAMP": self.mode.AtrAMP,
-            "AtrPW": self.mode.AtrPW
+            "AtrPW": self.mode.AtrPW,
+            "VenAMP": self.mode.VenAMP,
+            "VenPW": self.mode.VenPW,
+            "AtrSens": self.mode.AtrSens,
+            "ARP": self.mode.ARP,
+            "PVARP": self.mode.PVARP,
+            "VenSens": self.mode.VenSens,
+            "VRP": self.mode.VRP
         }
         try:
             with open("parameters.json", "r") as f:
@@ -275,6 +316,144 @@ class Window(ctk.CTk):
         # File not found error
         except FileNotFoundError:
             label.configure(text="users.txt does not exist")
+    def init_AOO(self):
+        for widget in self.parameters_frame.winfo_children():
+            widget.destroy()
+        for i in range(7):
+            self.parameters_frame.grid_rowconfigure(i, weight=1)
+        self.parameters_frame.grid_columnconfigure(0, weight=1)
+
+        # Pacemaker parameters label
+        parameters_label = ctk.CTkLabel(self.parameters_frame, text="Pacemaker Parameters", font=("Helvetica", 16))
+        parameters_label.grid(row=0, column=0, padx=5, pady=5, sticky="n")
+
+        # Entry boxes for parameters ##FIX FOR ALL MODES
+        self.LRL_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="LRL")
+        self.LRL_entry.grid(row=1, column=0, padx=5, pady=5, sticky="n")
+
+        self.URL_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="URL")
+        self.URL_entry.grid(row=2, column=0, padx=5, pady=5, sticky="n")
+
+        self.AtrAMP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="AtrAMP")
+        self.AtrAMP_entry.grid(row=3, column=0, padx=5, pady=5, sticky="n")
+
+        self.AtrPW_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="AtrPW")
+        self.AtrPW_entry.grid(row=4, column=0, padx=5, pady=5, sticky="n")
+
+        # Initially disabled save button
+        self.save_button = ctk.CTkButton(self.parameters_frame, text="Save Parameters", command=self.save_parameters, state="enabled")
+        self.save_button.grid(row=5, column=0, padx=5, pady=10, sticky="n")
+
+        self.invalid_input_label = ctk.CTkLabel(self.parameters_frame, text="Invalid Input. Please enter numeric values.", font=("Helvetica", 12), text_color="red")
+        self.valid_input_label = ctk.CTkLabel(self.parameters_frame, text="Parameters Saved!", font=("Helvetica", 12), text_color="green")
+
+    def init_VOO(self):
+        for widget in self.parameters_frame.winfo_children():
+            widget.destroy()
+        for i in range(7):
+            self.parameters_frame.grid_rowconfigure(i, weight=1)
+        self.parameters_frame.grid_columnconfigure(0, weight=1)
+
+        # Pacemaker parameters label
+        parameters_label = ctk.CTkLabel(self.parameters_frame, text="Pacemaker Parameters", font=("Helvetica", 16))
+        parameters_label.grid(row=0, column=0, padx=5, pady=5, sticky="n")
+
+        # Entry boxes for parameters ##FIX FOR ALL MODES
+        self.LRL_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="LRL")
+        self.LRL_entry.grid(row=1, column=0, padx=5, pady=5, sticky="n")
+
+        self.URL_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="URL")
+        self.URL_entry.grid(row=2, column=0, padx=5, pady=5, sticky="n")
+
+        self.VenAMP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="VenAMP")
+        self.VenAMP_entry.grid(row=3, column=0, padx=5, pady=5, sticky="n")
+
+        self.VenPW_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="VenPW")
+        self.VenPW_entry.grid(row=4, column=0, padx=5, pady=5, sticky="n")
+
+        # Initially disabled save button
+        self.save_button = ctk.CTkButton(self.parameters_frame, text="Save Parameters", command=self.save_parameters, state="enabled")
+        self.save_button.grid(row=5, column=0, padx=5, pady=10, sticky="n")
+
+        self.invalid_input_label = ctk.CTkLabel(self.parameters_frame, text="Invalid Input. Please enter numeric values.", font=("Helvetica", 12), text_color="red")
+        self.valid_input_label = ctk.CTkLabel(self.parameters_frame, text="Parameters Saved!", font=("Helvetica", 12), text_color="green")
+
+    def init_AAI(self):
+        for widget in self.parameters_frame.winfo_children():
+            widget.destroy()
+        for i in range(10):
+            self.parameters_frame.grid_rowconfigure(i, weight=1)
+        self.parameters_frame.grid_columnconfigure(0, weight=1)
+
+        # Pacemaker parameters label
+        parameters_label = ctk.CTkLabel(self.parameters_frame, text="Pacemaker Parameters", font=("Helvetica", 16))
+        parameters_label.grid(row=0, column=0, padx=5, pady=5, sticky="n")
+
+        # Entry boxes for parameters ##FIX FOR ALL MODES
+        self.LRL_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="LRL")
+        self.LRL_entry.grid(row=1, column=0, padx=5, pady=5, sticky="n")
+
+        self.URL_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="URL")
+        self.URL_entry.grid(row=2, column=0, padx=5, pady=5, sticky="n")
+
+        self.AtrAMP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="AtrAMP")
+        self.AtrAMP_entry.grid(row=3, column=0, padx=5, pady=5, sticky="n")
+
+        self.AtrPW_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="AtrPW")
+        self.AtrPW_entry.grid(row=4, column=0, padx=5, pady=5, sticky="n")
+
+        self.AtrSens_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="AtrSens")
+        self.AtrSens_entry.grid(row=5, column=0, padx=5, pady=5, sticky="n")
+
+        self.ARP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="ARP")
+        self.ARP_entry.grid(row=6, column=0, padx=5, pady=5, sticky="n")
+
+        self.PVARP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="PVARP")
+        self.PVARP_entry.grid(row=7, column=0, padx=5, pady=5, sticky="n")
+
+        # Initially disabled save button
+        self.save_button = ctk.CTkButton(self.parameters_frame, text="Save Parameters", command=self.save_parameters, state="enabled")
+        self.save_button.grid(row=8, column=0, padx=5, pady=10, sticky="n")
+
+        self.invalid_input_label = ctk.CTkLabel(self.parameters_frame, text="Invalid Input. Please enter numeric values.", font=("Helvetica", 12), text_color="red")
+        self.valid_input_label = ctk.CTkLabel(self.parameters_frame, text="Parameters Saved!", font=("Helvetica", 12), text_color="green")
+    
+    def init_VVI(self):
+        for widget in self.parameters_frame.winfo_children():
+            widget.destroy()
+        for i in range(10):
+            self.parameters_frame.grid_rowconfigure(i, weight=1)
+        self.parameters_frame.grid_columnconfigure(0, weight=1)
+
+        # Pacemaker parameters label
+        parameters_label = ctk.CTkLabel(self.parameters_frame, text="Pacemaker Parameters", font=("Helvetica", 16))
+        parameters_label.grid(row=0, column=0, padx=5, pady=5, sticky="n")
+
+        # Entry boxes for parameters ##FIX FOR ALL MODES
+        self.LRL_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="LRL")
+        self.LRL_entry.grid(row=1, column=0, padx=5, pady=5, sticky="n")
+
+        self.URL_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="URL")
+        self.URL_entry.grid(row=2, column=0, padx=5, pady=5, sticky="n")
+
+        self.VenAMP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="VenAMP")
+        self.VenAMP_entry.grid(row=3, column=0, padx=5, pady=5, sticky="n")
+
+        self.VenPW_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="VenPW")
+        self.VenPW_entry.grid(row=4, column=0, padx=5, pady=5, sticky="n")
+
+        self.VenSens_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="VenSens")
+        self.VenSens_entry.grid(row=5, column=0, padx=5, pady=5, sticky="n")
+
+        self.VRP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="VRP")
+        self.VRP_entry.grid(row=6, column=0, padx=5, pady=5, sticky="n")
+
+        # Initially disabled save button
+        self.save_button = ctk.CTkButton(self.parameters_frame, text="Save Parameters", command=self.save_parameters, state="enabled")
+        self.save_button.grid(row=7, column=0, padx=5, pady=10, sticky="n")
+
+        self.invalid_input_label = ctk.CTkLabel(self.parameters_frame, text="Invalid Input. Please enter numeric values.", font=("Helvetica", 12), text_color="red")
+        self.valid_input_label = ctk.CTkLabel(self.parameters_frame, text="Parameters Saved!", font=("Helvetica", 12), text_color="green")
 
     # Create the pacemaker page after logging in
     def init_pacemaker_page(self):
@@ -401,7 +580,7 @@ class Window(ctk.CTk):
 
         def mode_selected(*args):
             if self.pacemaker_mode_var.get():
-                save_button.configure(state="normal")  # Enable save button if a mode is selected
+                self.save_button.configure(state="normal")  # Enable save button if a mode is selected
 
         # Trace changes in pacemaker mode selection
         self.pacemaker_mode_var.trace_add("write", mode_selected)
@@ -412,19 +591,19 @@ class Window(ctk.CTk):
 
         # Radio buttons for modes
         AOO_button = ctk.CTkRadioButton(pacemaker_modes_frame, text="AOO", font=("Helvetica", 12),
-                                        variable=self.pacemaker_mode_var, value="AOO")
+                        variable=self.pacemaker_mode_var, value="AOO", command=self.init_AOO)
         AOO_button.grid(row=1, column=0, padx=5, pady=2, sticky="n")
 
         VOO_button = ctk.CTkRadioButton(pacemaker_modes_frame, text="VOO", font=("Helvetica", 12),
-                                        variable=self.pacemaker_mode_var, value="VOO")
+                                        variable=self.pacemaker_mode_var, value="VOO", command=self.init_VOO)
         VOO_button.grid(row=2, column=0, padx=5, pady=2, sticky="n")
 
         AAI_button = ctk.CTkRadioButton(pacemaker_modes_frame, text="AAI", font=("Helvetica", 12),
-                                        variable=self.pacemaker_mode_var, value="AAI")
+                                        variable=self.pacemaker_mode_var, value="AAI", command=self.init_AAI)
         AAI_button.grid(row=3, column=0, padx=5, pady=2, sticky="n")
 
         VVI_button = ctk.CTkRadioButton(pacemaker_modes_frame, text="VVI", font=("Helvetica", 12),
-                                        variable=self.pacemaker_mode_var, value="VVI")
+                                        variable=self.pacemaker_mode_var, value="VVI", command = self.init_VVI)
         VVI_button.grid(row=4, column=0, padx=5, pady=2, sticky="n")
 
         AOOR_button = ctk.CTkRadioButton(pacemaker_modes_frame, text="AOOR", font=("Helvetica", 12),
@@ -444,36 +623,46 @@ class Window(ctk.CTk):
         VVIR_button.grid(row=4, column=1, padx=5, pady=2, sticky="n")
 
         # Pacemaker parameters frame
-        parameters_frame = ctk.CTkFrame(self.content_frame, fg_color="white", border_width=2, border_color="gray")
-        parameters_frame.grid(row=9, column=0, rowspan=6, columnspan=2, padx=5, pady=10, sticky="nsew")
+        self.parameters_frame = ctk.CTkFrame(self.content_frame, fg_color="white", border_width=2, border_color="gray")
+        self.parameters_frame.grid(row=9, column=0, rowspan=6, columnspan=2, padx=5, pady=10, sticky="nsew")
 
         for i in range(7):
-            parameters_frame.grid_rowconfigure(i, weight=1)
-        parameters_frame.grid_columnconfigure(0, weight=1)
+            self.parameters_frame.grid_rowconfigure(i, weight=1)
+        self.parameters_frame.grid_columnconfigure(0, weight=1)
 
         # Pacemaker parameters label
-        parameters_label = ctk.CTkLabel(parameters_frame, text="Pacemaker Parameters", font=("Helvetica", 16))
+        parameters_label = ctk.CTkLabel(self.parameters_frame, text="Pacemaker Parameters", font=("Helvetica", 16))
         parameters_label.grid(row=0, column=0, padx=5, pady=5, sticky="n")
 
         # Entry boxes for parameters ##FIX FOR ALL MODES
-        self.LRL_entry = ctk.CTkEntry(parameters_frame, placeholder_text="LRL")
+        self.LRL_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="LRL")
         self.LRL_entry.grid(row=1, column=0, padx=5, pady=5, sticky="n")
 
-        self.URL_entry = ctk.CTkEntry(parameters_frame, placeholder_text="URL")
+        self.URL_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="URL")
         self.URL_entry.grid(row=2, column=0, padx=5, pady=5, sticky="n")
 
-        self.AtrAMP_entry = ctk.CTkEntry(parameters_frame, placeholder_text="AtrAMP")
+        self.AtrAMP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="AtrAMP")
         self.AtrAMP_entry.grid(row=3, column=0, padx=5, pady=5, sticky="n")
 
-        self.AtrPW_entry = ctk.CTkEntry(parameters_frame, placeholder_text="AtrPW")
+        self.AtrPW_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="AtrPW")
         self.AtrPW_entry.grid(row=4, column=0, padx=5, pady=5, sticky="n")
 
         # Initially disabled save button
-        save_button = ctk.CTkButton(parameters_frame, text="Save Parameters", command=self.save_parameters, state="disabled")
-        save_button.grid(row=5, column=0, padx=5, pady=10, sticky="n")
+        self.save_button = ctk.CTkButton(self.parameters_frame, text="Save Parameters", command=self.save_parameters, state="disabled")
+        self.save_button.grid(row=5, column=0, padx=5, pady=10, sticky="n")
 
-        self.invalid_input_label = ctk.CTkLabel(parameters_frame, text="Invalid Input. Please enter numeric values.", font=("Helvetica", 12), text_color="red")
-        self.valid_input_label = ctk.CTkLabel(parameters_frame, text="Parameters Saved!", font=("Helvetica", 12), text_color="green")
+        
+
+        self.pacemaker_mode_var.trace_add("write", mode_selected)
+
+        # Enable save button when pacemaker_mode_var is changed
+        def mode_selected(*args):
+            if self.pacemaker_mode_var.get():
+                self.save_button.configure(state="normal")
+
+        self.invalid_input_label = ctk.CTkLabel(self.parameters_frame, text="Invalid Input. Please enter numeric values.", font=("Helvetica", 12), text_color="red")
+        self.valid_input_label = ctk.CTkLabel(self.parameters_frame, text="Parameters Saved!", font=("Helvetica", 12), text_color="green")
+
         # Electrogram graphs frame setup
         self.egraphs_frame = ctk.CTkFrame(self.content_frame, fg_color="white")
         self.egraphs_frame.grid(row=0, column=2, rowspan=15, columnspan=15, padx=5, pady=10, sticky="nsew")
@@ -651,6 +840,3 @@ if __name__ == "__main__":
     ctk.set_default_color_theme("blue")
     window = Window()
     window.mainloop()
-
-
-    
