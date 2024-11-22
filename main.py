@@ -58,6 +58,7 @@ class Window(ctk.CTk):
         super().__init__()
         
         # Initialize the user as an empty object
+        self.newserial = None
         self.user = User("", "")  # Correctly initialize User
         self.title("3K04 Assignment 1")
         self.geometry("800x600")
@@ -667,11 +668,19 @@ class Window(ctk.CTk):
         status_text = self.isConnected()
         self.connection_status_label.configure(text=status_text)
 
-
+    def disconnect_pm(self):
+        """Attempts to disconnect from the pacemaker."""
+        if self.newserial and self.newserial.is_open:
+            self.newserial.close()
+            print("Disconnected from pacemaker.")
+        else:
+            print("No connection to disconnect.")
+        self.update_connection_status()
 
 # Add entry boxes for pacemaker values - save pacemaker values in users.txt
 # Add confirm button for select pacemaker mode
 # Consider the ranges for the programmable data
+
 
 
 # Start the event loop
