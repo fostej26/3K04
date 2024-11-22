@@ -17,12 +17,12 @@ data_counts = 0
 arr = 0
 
 # Load valid usernames from users.txt
-def load_users(file_name='users.txt'):
-    if not os.path.exists(file_name):
-        print(f"Error: {file_name} does not exist.")
-        return []
-    with open(file_name, 'r') as file:
-        return [line.strip() for line in file.readlines()]
+# def load_users(file_name='users.txt'):
+#     if not os.path.exists(file_name):
+#         print(f"Error: {file_name} does not exist.")
+#         return []
+#     with open(file_name, 'r') as file:
+#         return [line.strip() for line in file.readlines()]
 
 # Write parameters to JSON under the given username
 def write_to_json(username, params_dict, file_name='parameters.json'):
@@ -41,49 +41,27 @@ def write_to_json(username, params_dict, file_name='parameters.json'):
 # Class to store parameters
 class Params:
     def __init__(self, data):
-        # self.sync_byte = data[0]
-        # self.mode = data[1]
-        # self.lrl = data[2]
-        # self.url = data[3]
-        # self.atr_pulse_amplitude = struct.unpack('f', data[4:7])[0]
-        # self.atr_pulse_width = struct.unpack('f', data[8:11])[0]
-        # self.atrial_sensitivity = struct.unpack('H', data[12:13])[0]
-        # self.vent_pulse_amplitude = struct.unpack('f', data[14:17])[0]
-        # self.vent_pulse_width = struct.unpack('f', data[18:21])[0]
-        # self.ventricle_sensitivity = struct.unpack('H', data[22:23])[0]
-        # self.vrp = struct.unpack('H', data[24:25])[0]
-        # self.arp = struct.unpack('H', data[26:27])[0]
-        # self.fix_av_delay = struct.unpack('H', data[28:29])[0]
-        # self.max_sensor_rate = data[30]
-        # self.reaction_time = data[31]
-        # self.response_time = data[32]
-        # self.response_factor = data[33]
-        # self.recovery_time = data[34]
-        # self.activity_threshold = data[35]
-        # self.atrial_data = list(struct.unpack('10f', data[36:76]))
-        # self.ventricle_data = list(struct.unpack('10f', data[77:137]))
-
         self.sync_byte = data[0]
         self.mode = data[1]
         self.lrl = data[2]
         self.url = data[3]
-        self.atr_pulse_amplitude = struct.unpack('f', data[4:8])[0]
-        self.atr_pulse_width = struct.unpack('f', data[8:12])[0]
-        self.atrial_sensitivity = struct.unpack('H', data[12:14])[0]
-        self.vent_pulse_amplitude = struct.unpack('f', data[14:18])[0]
-        self.vent_pulse_width = struct.unpack('f', data[18:22])[0]
-        self.ventricle_sensitivity = struct.unpack('H', data[22:24])[0]
-        self.vrp = struct.unpack('H', data[24:26])[0]
-        self.arp = struct.unpack('H', data[26:28])[0]
-        self.fix_av_delay = struct.unpack('H', data[28:30])[0]
+        self.atr_pulse_amplitude = struct.unpack('f', data[4:8])
+        self.atr_pulse_width = struct.unpack('f', data[8:12])
+        self.atrial_sensitivity = struct.unpack('H', data[12:14])
+        self.vent_pulse_amplitude = struct.unpack('f', data[14:18])
+        self.vent_pulse_width = struct.unpack('f', data[18:22])
+        self.ventricle_sensitivity = struct.unpack('H', data[22:24])
+        self.vrp = struct.unpack('H', data[24:26])
+        self.arp = struct.unpack('H', data[26:28])
+        self.fix_av_delay = struct.unpack('H', data[28:30])
         self.max_sensor_rate = data[30]
         self.reaction_time = data[31]
         self.response_time = data[32]
         self.response_factor = data[33]
         self.recovery_time = data[34]
         self.activity_threshold = data[35]
-        self.atrial_data = list(struct.unpack('10f', data[36:76]))
-        self.ventricle_data = list(struct.unpack('10f', data[77:137]))
+        self.atrial_data = list(struct.unpack('10f', data[36:77]))
+        self.ventricle_data = list(struct.unpack('10f', data[77:138]))
 
     def to_dict(self):
         return self.__dict__
