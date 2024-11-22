@@ -380,7 +380,7 @@ class Window(ctk.CTk):
             connect_buttons_frame,
             text="Disconnect Pacemaker",
             cursor="hand2",
-            #command= connect pacemaker function laterrrr
+            command= self.disconnect_pm,
             fg_color="white",
             border_width=2,  # Background color
             text_color="black",  # Text color (foreground)
@@ -672,10 +672,10 @@ class Window(ctk.CTk):
         """Attempts to disconnect from the pacemaker."""
         if self.newserial and self.newserial.is_open:
             self.newserial.close()
-            print("Disconnected from pacemaker.")
+            status_text = "Disconnected from pacemaker."
         else:
-            print("No connection to disconnect.")
-        self.update_connection_status()
+            status_text = "No connection to disconnect."
+        self.connection_status_label.configure(text=status_text)
 
 # Add entry boxes for pacemaker values - save pacemaker values in users.txt
 # Add confirm button for select pacemaker mode
