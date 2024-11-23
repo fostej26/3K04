@@ -13,7 +13,7 @@ import serial
 
 from yarl import URL
 
-def checkparams(LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW):
+def checkparams(LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, AtrSens, ARP, PVARP, VenSens, VRP, ReactionTime, RecoveryTime, ResponseFactor, ActivityThreshold):
     pass
 
 def is_float(s):
