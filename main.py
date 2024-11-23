@@ -519,6 +519,157 @@ class Window(ctk.CTk):
         self.invalid_input_label = ctk.CTkLabel(self.parameters_frame, text="Invalid Input. Please enter numeric values.", font=("Helvetica", 12), text_color="red")
         self.valid_input_label = ctk.CTkLabel(self.parameters_frame, text="Parameters Saved!", font=("Helvetica", 12), text_color="green")
 
+    def init_VOOR(self):
+        for widget in self.parameters_frame.winfo_children():
+            widget.destroy()
+        for i in range(6):
+            self.parameters_frame.grid_rowconfigure(i, weight=1)
+        for j in range(2):
+            self.parameters_frame.grid_columnconfigure(j, weight=1)
+
+        # Pacemaker parameters label
+        parameters_label = ctk.CTkLabel(self.parameters_frame, text="Pacemaker Parameters", font=("Helvetica", 12))
+        parameters_label.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+
+        # Entry boxes for parameters
+        self.LRL_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="LRL")
+        self.LRL_entry.grid(row=1, column=0, padx=5, pady=5, sticky="n")
+
+        self.URL_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="URL")
+        self.URL_entry.grid(row=1, column=1, padx=5, pady=5, sticky="n")
+
+        self.VenAMP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="VenAMP")
+        self.VenAMP_entry.grid(row=2, column=0, padx=5, pady=5, sticky="n")
+
+        self.VenPW_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="VenPW")
+        self.VenPW_entry.grid(row=2, column=1, padx=5, pady=5, sticky="n")
+
+        self.ReactionTime_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Reaction Time")
+        self.ReactionTime_entry.grid(row=3, column=0, padx=5, pady=5, sticky="n")
+
+        self.RecoveryTime_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Recovery Time")
+        self.RecoveryTime_entry.grid(row=3, column=1, padx=5, pady=5, sticky="n")
+
+        self.ResponseFactor_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Response Factor")
+        self.ResponseFactor_entry.grid(row=4, column=0, padx=5, pady=5, sticky="n")
+
+        self.ActivityThreshold_var = ctk.StringVar(value="Activity Threshold")  # Default value
+        self.ActivityThreshold_entry = ctk.CTkOptionMenu(self.parameters_frame, variable=self.ActivityThreshold_var, values=["VL", "L", "ML", "M", "MH", "H", "VH"], fg_color="white", text_color="gray")
+        self.ActivityThreshold_entry.grid(row=4, column=1, padx=5, pady=5, sticky="n")
+
+        # Initially enabled save button
+        self.save_button = ctk.CTkButton(self.parameters_frame, text="Save Parameters", command=self.save_parameters, state="enabled")
+        self.save_button.grid(row=5, column=0, columnspan=2, padx=5, pady=10, sticky="n")
+
+        self.invalid_input_label = ctk.CTkLabel(self.parameters_frame, text="Invalid Input. Please enter numeric values.", font=("Helvetica", 12), text_color="red")
+        self.valid_input_label = ctk.CTkLabel(self.parameters_frame, text="Parameters Saved!", font=("Helvetica", 12), text_color="green")
+
+    def init_AAIR(self):
+        for widget in self.parameters_frame.winfo_children():
+            widget.destroy()
+        for i in range(10):
+            self.parameters_frame.grid_rowconfigure(i, weight=1)
+        for j in range(2):
+            self.parameters_frame.grid_columnconfigure(j, weight=1)
+
+        # Pacemaker parameters label
+        parameters_label = ctk.CTkLabel(self.parameters_frame, text="Pacemaker Parameters", font=("Helvetica", 12))
+        parameters_label.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+
+        # Entry boxes for parameters
+        self.LRL_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="LRL")
+        self.LRL_entry.grid(row=1, column=0, padx=5, pady=5, sticky="n")
+
+        self.URL_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="URL")
+        self.URL_entry.grid(row=1, column=1, padx=5, pady=5, sticky="n")
+
+        self.AtrAMP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="AtrAMP")
+        self.AtrAMP_entry.grid(row=2, column=0, padx=5, pady=5, sticky="n")
+
+        self.AtrPW_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="AtrPW")
+        self.AtrPW_entry.grid(row=2, column=1, padx=5, pady=5, sticky="n")
+
+        self.AtrSens_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="AtrSens")
+        self.AtrSens_entry.grid(row=3, column=0, padx=5, pady=5, sticky="n")
+
+        self.ARP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="ARP")
+        self.ARP_entry.grid(row=3, column=1, padx=5, pady=5, sticky="n")
+
+        self.PVARP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="PVARP")
+        self.PVARP_entry.grid(row=4, column=0, padx=5, pady=5, sticky="n")
+
+        self.ReactionTime_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Reaction Time")
+        self.ReactionTime_entry.grid(row=4, column=1, padx=5, pady=5, sticky="n")
+
+        self.RecoveryTime_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Recovery Time")
+        self.RecoveryTime_entry.grid(row=5, column=0, padx=5, pady=5, sticky="n")
+
+        self.ResponseFactor_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Response Factor")
+        self.ResponseFactor_entry.grid(row=5, column=1, padx=5, pady=5, sticky="n")
+
+        self.ActivityThreshold_var = ctk.StringVar(value="Activity Threshold")  # Default value
+        self.ActivityThreshold_entry = ctk.CTkOptionMenu(self.parameters_frame, variable=self.ActivityThreshold_var, values=["VL", "L", "ML", "M", "MH", "H", "VH"], fg_color="white", text_color="gray")
+        self.ActivityThreshold_entry.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="n")
+
+        # Initially enabled save button
+        self.save_button = ctk.CTkButton(self.parameters_frame, text="Save Parameters", command=self.save_parameters, state="enabled")
+        self.save_button.grid(row=7, column=0, columnspan=2, padx=5, pady=10, sticky="n")
+
+        self.invalid_input_label = ctk.CTkLabel(self.parameters_frame, text="Invalid Input. Please enter numeric values.", font=("Helvetica", 12), text_color="red")
+        self.valid_input_label = ctk.CTkLabel(self.parameters_frame, text="Parameters Saved!", font=("Helvetica", 12), text_color="green")
+
+    def init_VVIR(self):
+        for widget in self.parameters_frame.winfo_children():
+            widget.destroy()
+        for i in range(8):
+            self.parameters_frame.grid_rowconfigure(i, weight=1)
+        for j in range(2):
+            self.parameters_frame.grid_columnconfigure(j, weight=1)
+
+        # Pacemaker parameters label
+        parameters_label = ctk.CTkLabel(self.parameters_frame, text="Pacemaker Parameters", font=("Helvetica", 12))
+        parameters_label.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+
+        # Entry boxes for parameters
+        self.LRL_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="LRL")
+        self.LRL_entry.grid(row=1, column=0, padx=5, pady=5, sticky="n")
+
+        self.URL_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="URL")
+        self.URL_entry.grid(row=1, column=1, padx=5, pady=5, sticky="n")
+
+        self.VenAMP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="VenAMP")
+        self.VenAMP_entry.grid(row=2, column=0, padx=5, pady=5, sticky="n")
+
+        self.VenPW_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="VenPW")
+        self.VenPW_entry.grid(row=2, column=1, padx=5, pady=5, sticky="n")
+
+        self.VenSens_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="VenSens")
+        self.VenSens_entry.grid(row=3, column=0, padx=5, pady=5, sticky="n")
+
+        self.VRP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="VRP")
+        self.VRP_entry.grid(row=3, column=1, padx=5, pady=5, sticky="n")
+
+        self.ReactionTime_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Reaction Time")
+        self.ReactionTime_entry.grid(row=4, column=0, padx=5, pady=5, sticky="n")
+
+        self.RecoveryTime_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Recovery Time")
+        self.RecoveryTime_entry.grid(row=4, column=1, padx=5, pady=5, sticky="n")
+
+        self.ResponseFactor_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Response Factor")
+        self.ResponseFactor_entry.grid(row=5, column=0, padx=5, pady=5, sticky="n")
+
+        self.ActivityThreshold_var = ctk.StringVar(value="Activity Threshold")  # Default value
+        self.ActivityThreshold_entry = ctk.CTkOptionMenu(self.parameters_frame, variable=self.ActivityThreshold_var, values=["VL", "L", "ML", "M", "MH", "H", "VH"], fg_color="white", text_color="gray")
+        self.ActivityThreshold_entry.grid(row=5, column=1, padx=5, pady=5, sticky="n")
+
+        # Initially enabled save button
+        self.save_button = ctk.CTkButton(self.parameters_frame, text="Save Parameters", command=self.save_parameters, state="enabled")
+        self.save_button.grid(row=6, column=0, columnspan=2, padx=5, pady=10, sticky="n")
+
+        self.invalid_input_label = ctk.CTkLabel(self.parameters_frame, text="Invalid Input. Please enter numeric values.", font=("Helvetica", 12), text_color="red")
+        self.valid_input_label = ctk.CTkLabel(self.parameters_frame, text="Parameters Saved!", font=("Helvetica", 12), text_color="green")
+
+
     # Create the pacemaker page after logging in
     def init_pacemaker_page(self):
         # Clear the login frame and ensure it's destroyed
@@ -675,15 +826,15 @@ class Window(ctk.CTk):
         AOOR_button.grid(row=1, column=1, padx=5, pady=2, sticky="n")
 
         VOOR_button = ctk.CTkRadioButton(pacemaker_modes_frame, text="VOOR", font=("Helvetica", 12),
-                                         variable=self.pacemaker_mode_var, value="VOOR")
+                                         variable=self.pacemaker_mode_var, value="VOOR", command=self.init_VOOR)
         VOOR_button.grid(row=2, column=1, padx=5, pady=2, sticky="n")
 
         AAIR_button = ctk.CTkRadioButton(pacemaker_modes_frame, text="AAIR", font=("Helvetica", 12),
-                                         variable=self.pacemaker_mode_var, value="AAIR")
+                                         variable=self.pacemaker_mode_var, value="AAIR", command=self.init_AAIR)
         AAIR_button.grid(row=3, column=1, padx=5, pady=2, sticky="n")
 
         VVIR_button = ctk.CTkRadioButton(pacemaker_modes_frame, text="VVIR", font=("Helvetica", 12),
-                                         variable=self.pacemaker_mode_var, value="VVIR")
+                                         variable=self.pacemaker_mode_var, value="VVIR", command=self.init_VVIR)
         VVIR_button.grid(row=4, column=1, padx=5, pady=2, sticky="n")
 
         # Pacemaker parameters frame
