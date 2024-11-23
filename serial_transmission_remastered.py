@@ -47,23 +47,23 @@ class Params:
         self.url = data[3]
         self.atr_pulse_amplitude = struct.unpack('f', data[4:8])
         self.atr_pulse_width = struct.unpack('f', data[8:12])
-        self.atrial_sensitivity = struct.unpack('H', data[12:14])
-        self.vent_pulse_amplitude = struct.unpack('f', data[14:18])
-        self.vent_pulse_width = struct.unpack('f', data[18:22])
-        self.ventricle_sensitivity = struct.unpack('H', data[22:24])
-        self.vrp = struct.unpack('H', data[24:26])
-        self.arp = struct.unpack('H', data[26:28])
-        self.fix_av_delay = struct.unpack('H', data[28:30])
-        self.max_sensor_rate = data[30]
-        self.reaction_time = data[31]
-        self.response_time = data[32]
-        self.response_factor = data[33]
-        self.recovery_time = data[34]
-        self.activity_threshold = data[35]
-        self.atrial_data = list(struct.unpack('10f', data[36:77]))
-        self.ventricle_data = list(struct.unpack('10f', data[77:138]))
+        self.vent_pulse_amplitude = struct.unpack('f', data[12:16])
+        self.vent_pulse_width = struct.unpack('f', data[16:20])
+        self.vrp = struct.unpack('H', data[20:22])
+        self.arp = struct.unpack('H', data[22:24])
+        self.max_sensor_rate = data[24]
+        self.reaction_time = data[25]
+        self.response_factor = data[26]
+        self.recovery_time = data[27]
+        self.activity_threshold = data[28]
+        self.atrial_data = list(struct.unpack('10f', data[29:69]))
+        self.ventricle_data = list(struct.unpack('10f', data[78:108]))
 
     def to_dict(self):
+
+
+
+
         return self.__dict__
 
 # Prompt for username
