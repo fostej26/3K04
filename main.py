@@ -10,6 +10,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import json
 import serial 
+import struct
 
 from yarl import URL
 
@@ -235,6 +236,16 @@ class Window(ctk.CTk):
         self.message_label = ctk.CTkLabel(self, text="")  # Create a message label for status messages
         self.message_label.pack()  # Place the label in the window
         self.init_login_page() 
+
+        self.x = []
+        self.y = []
+
+        port = serial.Serial()
+        port.baudrate = 115200
+        port.port = 'COM6'
+        port.timeout = 10
+
+        
 
     def handle_register(self):
         username = self.username_entry.get()
@@ -1041,6 +1052,7 @@ class Window(ctk.CTk):
         # Call the functions for making the plots
         self.ventricular_electrogram()
         self.atrium_electrogram()
+        self.doSerial()
 
 
     # Function for creating the change password page when the change PW button is clicked
@@ -1130,22 +1142,22 @@ class Window(ctk.CTk):
         line, = ax.plot([], [], lw=2)
 
         # Set the limits of our graph
-        ax.set_xlim(0, 2 * np.pi)
-        ax.set_ylim(-1.5, 1.5)
+        ax.set_xlim(0, 5000)
+        ax.set_ylim(-1.5, 5)
 
         # Animation function (i is the frame)
         def animate(i):
 
-            # The plotted x and y values
-            x = np.linspace(0, 2 * np.pi, 1000)
-            y = np.sin(x + i / 10.0)
+           
+            n = np.arange(len(self.x))
 
             # Append the values to the previously empty x and y data sets
-            line.set_data(x, y)
+            line.set_ydata(self.x)
+            line.set_xdata(n)
             return line,
 
         # Call the animation function and draw to the egraphs_frame
-        ani = animation.FuncAnimation(fig, animate, frames=1000, interval=50, blit=True)
+        ani = animation.FuncAnimation(fig, animate, frames=5000, interval=50, blit=True)
         canvas = FigureCanvasTkAgg(fig, master=self.egraphs_frame)
         canvas.draw()
         canvas.get_tk_widget().grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
@@ -1164,31 +1176,56 @@ class Window(ctk.CTk):
         line, = ax.plot([], [], lw=3)
 
         # Set the limits of our graph
-        ax.set_xlim(0, 4)
-        ax.set_ylim(-2, 2)
+        ax.set_xlim(0, 5000)
+        ax.set_ylim(-1.5, 5)
 
         # Animation function (i is the frame)
         def animate(i):
 
-            # The plotted x and y values
-            x = np.linspace(0, 4, 1000)
-            y = np.sin(2 * np.pi * (x-0.01*i))
+            n = np.arange(len(self.y))
+
+            print(len(self.y))
 
             # Append the values to the previously empty x and y data sets
-            line.set_data(x, y)
+            line.set_ydata(self.y)
+            line.set_xdata(n)
             return line,
 
         # Call the animation function and draw to the egraphs_frame
-        ani = animation.FuncAnimation(fig, animate, frames=1000, interval=50, blit=True)
+        ani = animation.FuncAnimation(fig, animate, frames=5000, interval=50, blit=True)
         canvas = FigureCanvasTkAgg(fig, master=self.egraphs_frame)
         canvas.draw()
         canvas.get_tk_widget().grid(row=9, column=0, padx=5, pady=5, sticky="nsew")
+
+    def doSerial(self):
+        if self.newserial and self.newserial.is_open:
+            nextByte = self.newserial.read(1)
+            if int.from_bytes(nextByte) == 7:
+                arr = bytearray(108)
+                self.newserial.readinto(arr)
+                read_atrData = struct.unpack('10f', arr[28:68])
+                read_ventData = struct.unpack('10f', arr[68:108])
+
+                for y_val in read_atrData:
+                    self.y.append(y_val)
+                for x_val in read_ventData:
+                    self.x.append(x_val)
+                self.y = self.y[-10000:]
+                self.x = self.x[-10000:]
+            else:
+                self.newserial.reset_input_buffer()
+                print('unexpected:')
+                print(nextByte)
+        self.after(ms= 20, func= self.doSerial)
+
+
+
 
     def connect_pm(self):
         """Attempts to connect to the pacemaker."""
         try:
             self.newserial = serial.Serial(
-                port="COM4", 
+                port="COM6", 
                 baudrate=115200, 
                 timeout=10, 
                 parity=serial.PARITY_NONE, 
@@ -1225,7 +1262,6 @@ class Window(ctk.CTk):
 # Add entry boxes for pacemaker values - save pacemaker values in users.txt
 # Add confirm button for select pacemaker mode
 # Consider the ranges for the programmable data
-
 
 
 # Start the event loop
