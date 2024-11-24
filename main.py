@@ -1,3 +1,4 @@
+import struct
 from re import L, S
 from turtle import bgcolor, color, width
 import customtkinter as ctk
