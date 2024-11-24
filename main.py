@@ -12,6 +12,8 @@ import json
 import serial 
 import struct
 
+from serial_transmission_remastered import get_atr_vent_graphing_data, connect_serial_port
+
 from yarl import URL
 
 def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, AtrSens, ARP, PVARP, VenSens, VRP, ReactionTime, RecoveryTime, ResponseFactor, ActivityThreshold):
@@ -1052,7 +1054,6 @@ class Window(ctk.CTk):
         # Call the functions for making the plots
         self.ventricular_electrogram()
         self.atrium_electrogram()
-        self.doSerial()
 
 
     # Function for creating the change password page when the change PW button is clicked
@@ -1132,6 +1133,8 @@ class Window(ctk.CTk):
     # 1 -- ventricle electrogram
     def ventricular_electrogram(self):
 
+        _, vent_data = get_atr_vent_graphing_data()
+
         # Create a blank window for the animation
         fig, ax = plt.subplots(figsize=(12, 6))
         ax.set_title("Ventricle Electrogram")
@@ -1149,10 +1152,10 @@ class Window(ctk.CTk):
         def animate(i):
 
            
-            n = np.arange(len(self.x))
+            n = np.arange(len(vent_data))
 
             # Append the values to the previously empty x and y data sets
-            line.set_ydata(self.x)
+            line.set_ydata(vent_data)
             line.set_xdata(n)
             return line,
 
@@ -1165,6 +1168,8 @@ class Window(ctk.CTk):
 
 
     def atrium_electrogram(self):
+
+        atr_data, _ = get_atr_vent_graphing_data()
 
         # Create a blank window for the animation
         fig, ax = plt.subplots(figsize=(12, 6))  # Adjust size as needed
@@ -1182,12 +1187,10 @@ class Window(ctk.CTk):
         # Animation function (i is the frame)
         def animate(i):
 
-            n = np.arange(len(self.y))
-
-            print(len(self.y))
+            n = np.arange(len(atr_data))
 
             # Append the values to the previously empty x and y data sets
-            line.set_ydata(self.y)
+            line.set_ydata(atr_data)
             line.set_xdata(n)
             return line,
 
@@ -1197,41 +1200,10 @@ class Window(ctk.CTk):
         canvas.draw()
         canvas.get_tk_widget().grid(row=9, column=0, padx=5, pady=5, sticky="nsew")
 
-    def doSerial(self):
-        if self.newserial and self.newserial.is_open:
-            nextByte = self.newserial.read(1)
-            if int.from_bytes(nextByte) == 7:
-                arr = bytearray(108)
-                self.newserial.readinto(arr)
-                read_atrData = struct.unpack('10f', arr[28:68])
-                read_ventData = struct.unpack('10f', arr[68:108])
-
-                for y_val in read_atrData:
-                    self.y.append(y_val)
-                for x_val in read_ventData:
-                    self.x.append(x_val)
-                self.y = self.y[-10000:]
-                self.x = self.x[-10000:]
-            else:
-                self.newserial.reset_input_buffer()
-                print('unexpected:')
-                print(nextByte)
-        self.after(ms= 20, func= self.doSerial)
-
-
-
-
     def connect_pm(self):
         """Attempts to connect to the pacemaker."""
         try:
-            self.newserial = serial.Serial(
-                port="COM6", 
-                baudrate=115200, 
-                timeout=10, 
-                parity=serial.PARITY_NONE, 
-                stopbits=serial.STOPBITS_ONE, 
-                bytesize=serial.EIGHTBITS
-            )
+            connect_serial_port()
             self.update_connection_status()  # Update the label on successful connection
         except serial.SerialException as e:
             self.newserial = None

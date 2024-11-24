@@ -3,18 +3,24 @@ import json
 import os
 import serial
 
-# Serial port setup
 port = serial.Serial()
-port.baudrate = 115200
-port.port = 'COM6'
-port.timeout = 10
+# Serial port setup
+def connect_serial_port():
+    try:
+        port.baudrate = 115200
+        port.port = 'COM6'
+        port.timeout = 10
 
-port.open()
-print(port.is_open)
-
-flag = True
+        port.open()
+        print(port.is_open)
+    except serial.SerialException as e:
+        return e
+    
 data_counts = 0
 arr = 0
+
+atr_graphing_data = []
+vent_graphing_data = []
 
 # Load valid usernames from users.txt
 # def load_users(file_name='users.txt'):
@@ -61,6 +67,10 @@ class Params:
     def to_dict(self):
 
         return self.__dict__
+    
+
+def get_atr_vent_graphing_data():
+    return atr_graphing_data, vent_graphing_data
 
 
 def send_data(data):
@@ -85,19 +95,33 @@ if username not in users:
     exit()
 
 # Main data processing loop
-while flag:
-    first_byte = port.read(1)
-    if len(first_byte) == 1 and int.from_bytes(first_byte, byteorder='big') == 7:
-        arr = bytearray(108)
-        port.readinto(arr)
+while True:
+    if port.is_open:
+        first_byte = port.read(1)
+        if len(first_byte) == 1 and int.from_bytes(first_byte, byteorder='big') == 7:
+            arr = bytearray(108)
+            port.readinto(arr)
 
-        # Parse the byte array into parameters
-        params = Params(arr)
+            # Parse the byte array into parameters
+            params = Params(arr)
 
-        # Save the parameters under the given username
-        write_to_json(username, params.to_dict())
-    else:
-        port.reset_input_buffer()
-        print('Unexpected message format: flushing input and resetting')
+            # Save the parameters under the given username
+            write_to_json(username, params.to_dict())
 
-    data_counts += 1
+            atr_data = struct.unpack('10f', arr[28:68])
+            vent_data = struct.unpack('10f', arr[68:108])
+
+            for item in atr_data:
+                atr_graphing_data.append(atr_data)
+
+            for item in vent_data:
+                vent_graphing_data.append(vent_data)
+
+            atr_data = atr_data[-10000:]
+            vent_data = vent_data[-10000:]
+
+        else:
+            port.reset_input_buffer()
+            print('Unexpected message format: flushing input and resetting')
+
+        data_counts += 1
