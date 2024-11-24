@@ -9,7 +9,8 @@ import matplotlib.animation as animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import json
-import serial 
+import serial
+from serial_transmission_remastered import send_data
 
 from yarl import URL
 
@@ -1221,6 +1222,8 @@ class Window(ctk.CTk):
         else:
             status_text = "No connection to disconnect."
         self.connection_status_label.configure(text=status_text)
+
+
 
 # Add entry boxes for pacemaker values - save pacemaker values in users.txt
 # Add confirm button for select pacemaker mode
