@@ -61,10 +61,18 @@ class Params:
 
     def to_dict(self):
 
-
-
-
         return self.__dict__
+
+
+def send_data(data):
+    """Function to send data over serial."""
+    if port.is_open:
+        # Convert data to bytes and send
+        port.write(data)
+        print(f"Sent data: {data}")
+    else:
+        print("Port is not open, cannot send data.")
+
 
 # Prompt for username
 users = load_users()

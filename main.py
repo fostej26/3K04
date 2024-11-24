@@ -1,3 +1,4 @@
+import struct
 from re import S
 from turtle import bgcolor, width
 import customtkinter as ctk
@@ -9,6 +10,7 @@ import matplotlib.animation as animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import json
+from serial_transmission_remastered import send_data
 
 
 def callback(url):
@@ -628,6 +630,43 @@ class Window(ctk.CTk):
         canvas.draw()
         canvas.get_tk_widget().grid(row=9, column=0, padx=5, pady=5, sticky="nsew")
 
+
+
+def save_parameters(self):
+    try:
+        # Retrieve and validate inputs
+        lrl = int(self.LRL_entry.get())
+        url = int(self.URL_entry.get())
+        atr_amp = float(self.AtrAMP_entry.get())
+        atr_pw = float(self.AtrPW_entry.get())
+
+        # Add validation logic for ranges (example ranges; replace with actual device specs)
+        if not (30 <= lrl <= 175):
+            raise ValueError("LRL must be between 30 and 175.")
+        if not (50 <= url <= 175):
+            raise ValueError("URL must be between 50 and 175.")
+        if not (0.0 <= atr_amp <= 5.0):
+            raise ValueError("Atrial Amplitude must be between 0.0 and 5.0 volts.")
+        if not (0.05 <= atr_pw <= 1.9):
+            raise ValueError("Atrial Pulse Width must be between 0.05 and 1.9 ms.")
+
+        # Construct a bytearray or other data structure
+        params = bytearray(20)  # Example size; adjust based on your data structure
+        params[0:1] = lrl.to_bytes(1, 'little')  # Example for LRL
+        params[1:2] = url.to_bytes(1, 'little')  # Example for URL
+        struct.pack_into('f', params, 2, atr_amp)  # Example for atr_amp
+        struct.pack_into('f', params, 6, atr_pw)  # Example for atr_pw
+
+        # Call the send_data() function
+        send_data(params)
+
+    except ValueError as ve:
+        # ctk error handling msg here
+        pass
+    except Exception as e:
+        # ctk error handling msg here
+
+        pass
 
 
 # Add entry boxes for pacemaker values - save pacemaker values in users.txt
