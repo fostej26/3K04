@@ -314,6 +314,44 @@ class Window(ctk.CTk):
             self.valid_input_label.grid_remove()
             self.invalid_input_label.grid(row=6, column=0, padx=5, pady=5, sticky="n")
             return
+
+        mode_num = 0
+        if self.mode.name == 'AOO':
+            mode_num = 1
+        elif self.mode.name == 'VOO':
+            mode_num = 2
+        elif self.mode.name == 'AAI':
+            mode_num = 3
+        if self.mode.name == 'VVI':
+            mode_num = 4
+        elif self.mode.name == 'AOOR':
+            mode_num = 5
+        elif self.mode.name == 'VOOR':
+            mode_num = 6
+        if self.mode.name == 'AAIR':
+            mode_num = 7
+        elif self.mode.name == 'VVIR':
+            mode_num = 8
+
+        byte_0 = struct.pack('<B', 40)
+
+        byte_1 = struct.pack('<B', mode_num)
+        byte_2 = struct.pack('<B', 0 if (self.mode.LRL == '') else int(self.mode.LRL))
+        byte_3 = struct.pack('<B', 0 if (self.mode.URL == '') else int(self.mode.URL))
+        bytes4_7 = struct.pack('<f', 0 if (self.mode.AtrAMP == '') else float(self.mode.AtrAMP))
+        bytes8_11 = struct.pack('<f', 0 if (self.mode.AtrPW == '') else float(self.mode.AtrPW))
+        bytes12_15 = struct.pack('<f', 0 if (self.mode.VenAMP == '') else float(self.mode.VenAMP))
+        bytes16_19 = struct.pack('<f', 0 if (self.mode.VenPW == '') else float(self.mode.VenPW))
+        bytes20_21 = struct.pack('<H', 0 if (self.mode.VRP == '') else int(self.mode.VRP))
+        bytes22_23 = struct.pack('<H', 0 if (self.mode.ARP == '') else int(self.mode.ARP))
+        byte_24 = struct.pack('<B', 0 if (self.mode.MaxSensorRate == '') else int(self.mode.MaxSensorRate))
+        byte_25 = struct.pack('<B', 0 if (self.mode.ReactionTime == '') else int(self.mode.ReactionTime))
+        byte_26 = struct.pack('<B', 0 if (self.mode.ResponseFactor == '') else int(self.mode.ResponseFactor))
+        byte_27 = struct.pack('<B', 0 if (self.mode.RecoveryTime == '') else int(self.mode.RecoveryTime))
+        byte_28 = struct.pack('<B', 0 if (self.mode.ActivityThreshold == '') else int(self.activity_thresh_converter(self.mode.ActivityThreshold)))
+
+        byte_arr = byte_0 + byte_1 + byte_2 + byte_3 + bytes4_7 + bytes8_11 + bytes12_15 + bytes16_19 + bytes20_21 + bytes22_23 + byte_24 + byte_25 + byte_26 + byte_27 + byte_28
+        send_data(byte_arr)
         
         mode_data = {
             "name": self.mode.name,
@@ -354,6 +392,25 @@ class Window(ctk.CTk):
 
         with open("parameters.json", "w") as f:
             json.dump(users, f, indent=4)
+
+    def activity_thresh_converter(self, thresh):
+        # "VL", "L", "ML", "M", "MH", "H", "VH"
+        if thresh == 'VL':
+            return 0
+        elif thresh == 'L':
+            return 1
+        elif thresh == 'ML':
+            return 2
+        elif thresh == 'M':
+            return 3
+        elif thresh == 'MH':
+            return 4
+        elif thresh == 'H':
+            return 5
+        elif thresh == 'VH':
+            return 6
+        else:
+            return 0
 
 
     def init_login_page(self):
