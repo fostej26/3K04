@@ -24,6 +24,7 @@ def get_port():
 
 def close_serial():
     port.close()
+    global counter
     counter = 0
 
 def get_current_serial_counter():

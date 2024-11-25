@@ -1136,7 +1136,7 @@ class Window(ctk.CTk):
         line, = ax.plot([], [], lw=2)
 
         # Set the limits of our graph
-        ax.set_xlim(-5000, 0)
+        ax.set_xlim(-10000, 0)
         ax.set_ylim(-5, 5)
 
         # Animation function (i is the frame)
@@ -1144,7 +1144,7 @@ class Window(ctk.CTk):
             
             _, vent_data = get_atr_vent_graphing_data()
            
-            n = np.arange(-len(vent_data), 0)
+            n = np.arange(-2*len(vent_data), 0, 2)
 
             # Append the values to the previously empty x and y data sets
             line.set_ydata(vent_data)
@@ -1172,14 +1172,14 @@ class Window(ctk.CTk):
 
         # Set the limits of our graph
         ax.set_ylim(-5, 5)
-        ax.set_xlim(-5000, 0)
+        ax.set_xlim(-10000, 0)
 
         # Animation function (i is the frame)
         def animate(i):
 
             atr_data, _ = get_atr_vent_graphing_data()
 
-            n = np.arange(-len(atr_data), 0)
+            n = np.arange(-2*len(atr_data), 0, 2)
 
             # Append the values to the previously empty x and y data sets
             line.set_ydata(atr_data)
