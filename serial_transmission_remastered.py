@@ -31,18 +31,18 @@ vent_graphing_data = []
 #         return [line.strip() for line in file.readlines()]
 
 # Write parameters to JSON under the given username
-def write_to_json(username, params_dict, file_name='parameters.json'):
-    if not os.path.exists(file_name):
-        with open(file_name, 'w') as file:
-            json.dump({}, file)
+# def write_to_json(username, params_dict, file_name='parameters.json'):
+#     if not os.path.exists(file_name):
+#         with open(file_name, 'w') as file:
+#             json.dump({}, file)
 
-    with open(file_name, 'r+') as file:
-        data = json.load(file)
-        if username not in data:
-            data[username] = []
-        data[username].append(params_dict)
-        file.seek(0)
-        json.dump(data, file, indent=4)
+#     with open(file_name, 'r+') as file:
+#         data = json.load(file)
+#         if username not in data:
+#             data[username] = []
+#         data[username].append(params_dict)
+#         file.seek(0)
+#         json.dump(data, file, indent=4)
 
 # Class to store parameters
 class Params:
@@ -84,18 +84,18 @@ def send_data(data):
 
 
 # Prompt for username
-users = load_users()
-if not users:
-    print("No valid users found. Exiting.")
-    exit()
+# users = load_users()
+# if not users:
+#     print("No valid users found. Exiting.")
+#     exit()
 
-username = input("Enter your username: ").strip()
-if username not in users:
-    print("Invalid username. Exiting.")
-    exit()
+# username = input("Enter your username: ").strip()
+# if username not in users:
+#     print("Invalid username. Exiting.")
+#     exit()
 
 # Main data processing loop
-while True:
+def check_serial_port():
     if port.is_open:
         first_byte = port.read(1)
         if len(first_byte) == 1 and int.from_bytes(first_byte, byteorder='big') == 7:
@@ -106,16 +106,16 @@ while True:
             params = Params(arr)
 
             # Save the parameters under the given username
-            write_to_json(username, params.to_dict())
+            # write_to_json(username, params.to_dict())
 
             atr_data = struct.unpack('10f', arr[28:68])
             vent_data = struct.unpack('10f', arr[68:108])
 
-            for item in atr_data:
-                atr_graphing_data.append(atr_data)
+            for atr_item in atr_data:
+                atr_graphing_data.append(atr_item)
 
-            for item in vent_data:
-                vent_graphing_data.append(vent_data)
+            for vent_item in vent_data:
+                vent_graphing_data.append(vent_item)
 
             atr_data = atr_data[-10000:]
             vent_data = vent_data[-10000:]
@@ -123,5 +123,3 @@ while True:
         else:
             port.reset_input_buffer()
             print('Unexpected message format: flushing input and resetting')
-
-        data_counts += 1

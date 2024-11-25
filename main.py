@@ -12,7 +12,7 @@ import json
 import serial 
 import struct
 
-from serial_transmission_remastered import get_atr_vent_graphing_data, connect_serial_port
+from serial_transmission_remastered import get_atr_vent_graphing_data, connect_serial_port, check_serial_port
 
 from yarl import URL
 
@@ -1133,8 +1133,6 @@ class Window(ctk.CTk):
     # 1 -- ventricle electrogram
     def ventricular_electrogram(self):
 
-        _, vent_data = get_atr_vent_graphing_data()
-
         # Create a blank window for the animation
         fig, ax = plt.subplots(figsize=(12, 6))
         ax.set_title("Ventricle Electrogram")
@@ -1150,7 +1148,8 @@ class Window(ctk.CTk):
 
         # Animation function (i is the frame)
         def animate(i):
-
+            
+            _, vent_data = get_atr_vent_graphing_data()
            
             n = np.arange(len(vent_data))
 
@@ -1169,8 +1168,6 @@ class Window(ctk.CTk):
 
     def atrium_electrogram(self):
 
-        atr_data, _ = get_atr_vent_graphing_data()
-
         # Create a blank window for the animation
         fig, ax = plt.subplots(figsize=(12, 6))  # Adjust size as needed
         ax.set_title("Atrium Electrogram")
@@ -1187,6 +1184,8 @@ class Window(ctk.CTk):
         # Animation function (i is the frame)
         def animate(i):
 
+            atr_data, _ = get_atr_vent_graphing_data()
+
             n = np.arange(len(atr_data))
 
             # Append the values to the previously empty x and y data sets
@@ -1200,11 +1199,16 @@ class Window(ctk.CTk):
         canvas.draw()
         canvas.get_tk_widget().grid(row=9, column=0, padx=5, pady=5, sticky="nsew")
 
+    def check_serial(self):
+        check_serial_port()
+        self.after(ms= 20, func= self.check_serial)
+
     def connect_pm(self):
         """Attempts to connect to the pacemaker."""
         try:
             connect_serial_port()
             self.update_connection_status()  # Update the label on successful connection
+            self.after(ms= 20, func= self.check_serial)
         except serial.SerialException as e:
             self.newserial = None
             print(f"Failed to connect: {e}")
