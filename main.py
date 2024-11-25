@@ -1159,7 +1159,7 @@ class Window(ctk.CTk):
             return line,
 
         # Call the animation function and draw to the egraphs_frame
-        ani = animation.FuncAnimation(fig, animate, frames=5000, interval=50, blit=True)
+        ani = animation.FuncAnimation(fig, animate, frames=100, interval=50, blit=True)
         canvas = FigureCanvasTkAgg(fig, master=self.egraphs_frame)
         canvas.draw()
         canvas.get_tk_widget().grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
@@ -1194,7 +1194,7 @@ class Window(ctk.CTk):
             return line,
 
         # Call the animation function and draw to the egraphs_frame
-        ani = animation.FuncAnimation(fig, animate, frames=5000, interval=50, blit=True)
+        ani = animation.FuncAnimation(fig, animate, frames=1000, interval=50, blit=True)
         canvas = FigureCanvasTkAgg(fig, master=self.egraphs_frame)
         canvas.draw()
         canvas.get_tk_widget().grid(row=9, column=0, padx=5, pady=5, sticky="nsew")

@@ -107,6 +107,9 @@ def check_serial_port():
 
             # Save the parameters under the given username
             # write_to_json(username, params.to_dict())
+            
+            global atr_graphing_data
+            global vent_graphing_data
 
             atr_data = struct.unpack('10f', arr[28:68])
             vent_data = struct.unpack('10f', arr[68:108])
@@ -117,8 +120,8 @@ def check_serial_port():
             for vent_item in vent_data:
                 vent_graphing_data.append(vent_item)
 
-            atr_data = atr_data[-10000:]
-            vent_data = vent_data[-10000:]
+            atr_graphing_data = atr_graphing_data[-5000:]
+            vent_graphing_data = vent_graphing_data[-5000:]
 
         else:
             port.reset_input_buffer()
