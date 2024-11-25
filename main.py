@@ -11,11 +11,11 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import json
 import serial
-from serial_transmission_remastered import send_data
+# from serial_transmission_remastered import send_data
 
 from yarl import URL
 
-def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, AtrSens, ARP, PVARP, VenSens, VRP, ReactionTime, RecoveryTime, ResponseFactor, ActivityThreshold):
+def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, ARP, VRP, ReactionTime, RecoveryTime, ResponseFactor, ActivityThreshold,MaxSensorRate):
     if Name == "AOO":
         if not (is_float(LRL) and 30 <= float(LRL) <= 175):
             return False
@@ -47,11 +47,7 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, AtrSens, ARP, PVAR
             return False
         if not (is_float(AtrPW) and 0.05 <= float(AtrPW) <= 1.9):
             return False
-        if not (is_float(AtrSens) and 1 <= float(AtrSens) <= 10):
-            return False
         if not (is_float(ARP) and 150 <= float(ARP) <= 500):
-            return False
-        if not (is_float(PVARP) and 150 <= float(PVARP) <= 500):
             return False
         return True
     
@@ -63,8 +59,6 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, AtrSens, ARP, PVAR
         if not (is_float(VenAMP) and 0 <= float(VenAMP) <= 5):
             return False
         if not (is_float(VenPW) and 0.05 <= float(VenPW) <= 1.9):
-            return False
-        if not (is_float(VenSens) and 1 <= float(VenSens) <= 10):
             return False
         if not (is_float(VRP) and 150 <= float(VRP) <= 500):
             return False
@@ -87,6 +81,8 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, AtrSens, ARP, PVAR
             return False
         if not ActivityThreshold != "Activity Threshold":
             return False
+        if not (is_float(MaxSensorRate) and 50 <= float(MaxSensorRate) <= 175):
+            return False
         return True
     
     if Name == "VOOR":
@@ -106,6 +102,8 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, AtrSens, ARP, PVAR
             return False
         if not ActivityThreshold != "Activity Threshold":
             return False
+        if not (is_float(MaxSensorRate) and 50 <= float(MaxSensorRate) <= 175):
+            return False
         return True
     
     if Name == "AAIR":
@@ -117,11 +115,7 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, AtrSens, ARP, PVAR
             return False
         if not (is_float(AtrPW) and 0.05 <= float(AtrPW) <= 1.9):
             return False
-        if not (is_float(AtrSens) and 1 <= float(AtrSens) <= 10):
-            return False
         if not (is_float(ARP) and 150 <= float(ARP) <= 500):
-            return False
-        if not (is_float(PVARP) and 150 <= float(PVARP) <= 500):
             return False
         if not (is_float(ReactionTime) and 10 <= float(ReactionTime) <= 50):
             return False
@@ -130,6 +124,8 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, AtrSens, ARP, PVAR
         if not (is_float(ResponseFactor) and 1 <= float(ResponseFactor) <= 16):
             return False
         if not ActivityThreshold != "Activity Threshold":
+            return False
+        if not (is_float(MaxSensorRate) and 50 <= float(MaxSensorRate) <= 175):
             return False
         return True
     
@@ -142,8 +138,6 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, AtrSens, ARP, PVAR
             return False
         if not (is_float(VenPW) and 0.05 <= float(VenPW) <= 1.9):
             return False
-        if not (is_float(VenSens) and 1 <= float(VenSens) <= 10):
-            return False
         if not (is_float(VRP) and 150 <= float(VRP) <= 500):
             return False
         if not (is_float(ReactionTime) and 10 <= float(ReactionTime) <= 50):
@@ -153,6 +147,8 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, AtrSens, ARP, PVAR
         if not (is_float(ResponseFactor) and 1 <= float(ResponseFactor) <= 16):
             return False
         if not ActivityThreshold != "Activity Threshold":
+            return False
+        if not (is_float(MaxSensorRate) and 50 <= float(MaxSensorRate) <= 175):
             return False
         return True
     
@@ -178,39 +174,35 @@ class Mode:
         self.AtrPW = 0
         self.VenAMP = 0
         self.VenPW = 0
-        self.AtrSens = 0
         self.ARP = 0
-        self.PVARP = 0
-        self.VenSens = 0
         self.VRP = 0
         self.ReactionTime = 0
         self.RecoveryTime = 0
         self.ResponseFactor = 0
         self.ActivityThreshold = 0
+        self.MaxSensorRate = 0
 
     def set_name(self, name):
         self.name = name
 
-    def set_params(self, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, AtrSens, ARP, PVARP, VenSens, VRP, ReactionTime, RecoveryTime, ResponseFactor, ActivityThreshold):
+    def set_params(self, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, ARP, VRP, ReactionTime, RecoveryTime, ResponseFactor, ActivityThreshold, MaxSensorRate):
         self.LRL = LRL
         self.URL = URL
         self.AtrAMP = AtrAMP
         self.AtrPW = AtrPW
         self.VenAMP = VenAMP
         self.VenPW = VenPW
-        self.AtrSens = AtrSens
         self.ARP = ARP
-        self.PVARP = PVARP
-        self.VenSens = VenSens
         self.VRP = VRP
         self.ReactionTime = ReactionTime
         self.RecoveryTime = RecoveryTime
         self.ResponseFactor = ResponseFactor
         self.ActivityThreshold = ActivityThreshold
+        self.MaxSensorRate = MaxSensorRate
 
 
     def get_params(self):
-        return self.LRL, self.URL, self.AtrAMP, self.AtrPW, self.VenAMP, self.VenPW, self.AtrSens, self.ARP, self.PVARP, self.VenSens, self.VRP, self.ReactionTime, self.RecoveryTime, self.ResponseFactor, self.ActivityThreshold
+        return self.LRL, self.URL, self.AtrAMP, self.AtrPW, self.VenAMP, self.VenPW, self.ARP, self.VRP, self.ReactionTime, self.RecoveryTime, self.ResponseFactor, self.ActivityThreshold, self.MaxSensorRate
         
 class User:
     def __init__(self, username, password):
@@ -279,6 +271,7 @@ class Window(ctk.CTk):
         self.mode = Mode()
         mode_name = self.pacemaker_mode_var.get()
         self.mode.set_name(mode_name)
+        
         def safe_get(entry, default=""):
             try:
                 output = entry.get()
@@ -293,25 +286,23 @@ class Window(ctk.CTk):
             AtrPW=safe_get(getattr(self, 'AtrPW_entry', None)),
             VenAMP=safe_get(getattr(self, 'VenAMP_entry', None)),
             VenPW=safe_get(getattr(self, 'VenPW_entry', None)),
-            AtrSens=safe_get(getattr(self, 'AtrSens_entry', None)),
             ARP=safe_get(getattr(self, 'ARP_entry', None)),
-            PVARP=safe_get(getattr(self, 'PVARP_entry', None)),
-            VenSens=safe_get(getattr(self, 'VenSens_entry', None)),
             VRP=safe_get(getattr(self, 'VRP_entry', None)),
             ReactionTime=safe_get(getattr(self, 'ReactionTime_entry', None)),
             RecoveryTime=safe_get(getattr(self, 'RecoveryTime_entry', None)),
             ResponseFactor=safe_get(getattr(self, 'ResponseFactor_entry', None)),
-            ActivityThreshold=safe_get(getattr(self, 'ActivityThreshold_entry', None))
+            ActivityThreshold=safe_get(getattr(self, 'ActivityThreshold_entry', None)),
+            MaxSensorRate=safe_get(getattr(self, 'MaxSensorRate_entry', None))
         )
 
-        
-        if checkparams(self.mode.name, self.mode.LRL, self.mode.URL, self.mode.AtrAMP, self.mode.AtrPW, self.mode.VenAMP, self.mode.VenPW, self.mode.AtrSens, self.mode.ARP, self.mode.PVARP, self.mode.VenSens, self.mode.VRP, self.mode.ReactionTime, self.mode.RecoveryTime, self.mode.ResponseFactor, self.mode.ActivityThreshold):
+        if checkparams(self.mode.name, self.mode.LRL, self.mode.URL, self.mode.AtrAMP, self.mode.AtrPW, self.mode.VenAMP, self.mode.VenPW, self.mode.ARP, self.mode.VRP, self.mode.ReactionTime, self.mode.RecoveryTime, self.mode.ResponseFactor, self.mode.ActivityThreshold, self.mode.MaxSensorRate):
             self.invalid_input_label.grid_remove()
             self.valid_input_label.grid(row=6, column=0, padx=5, pady=5, sticky="n")
         else:
             self.valid_input_label.grid_remove()
             self.invalid_input_label.grid(row=6, column=0, padx=5, pady=5, sticky="n")
             return
+        
         mode_data = {
             "name": self.mode.name,
             "LRL": self.mode.LRL,
@@ -320,16 +311,15 @@ class Window(ctk.CTk):
             "AtrPW": self.mode.AtrPW,
             "VenAMP": self.mode.VenAMP,
             "VenPW": self.mode.VenPW,
-            "AtrSens": self.mode.AtrSens,
             "ARP": self.mode.ARP,
-            "PVARP": self.mode.PVARP,
-            "VenSens": self.mode.VenSens,
             "VRP": self.mode.VRP,
             "ReactionTime": self.mode.ReactionTime,
             "RecoveryTime": self.mode.RecoveryTime,
             "ResponseFactor": self.mode.ResponseFactor,
-            "ActivityThreshold": self.mode.ActivityThreshold
+            "ActivityThreshold": self.mode.ActivityThreshold,
+            "MaxSensorRate": self.mode.MaxSensorRate
         }
+        
         try:
             with open("parameters.json", "r") as f:
                 users = json.load(f)
@@ -340,7 +330,12 @@ class Window(ctk.CTk):
             if user["username"] == username:
                 if "modes" not in user:
                     user["modes"] = []
-                user["modes"].append(mode_data)
+                for i, mode in enumerate(user["modes"]):
+                    if mode["name"] == mode_name:
+                        user["modes"][i] = mode_data
+                        break
+                else:
+                    user["modes"].append(mode_data)
                 break
         else:
             users.append({"username": username, "modes": [mode_data]})
@@ -544,7 +539,7 @@ class Window(ctk.CTk):
     def init_AAI(self):
         for widget in self.parameters_frame.winfo_children():
             widget.destroy()
-        for i in range(10):
+        for i in range(9):
             self.parameters_frame.grid_rowconfigure(i, weight=1)
         self.parameters_frame.grid_columnconfigure(0, weight=1)
 
@@ -565,18 +560,12 @@ class Window(ctk.CTk):
         self.AtrPW_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="AtrPW (0.05-1.9ms)")
         self.AtrPW_entry.grid(row=4, column=0, padx=5, pady=5, sticky="n")
 
-        self.AtrSens_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="AtrSens (1-10 mV)")
-        self.AtrSens_entry.grid(row=5, column=0, padx=5, pady=5, sticky="n")
-
         self.ARP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="ARP (150-500ms)")
-        self.ARP_entry.grid(row=6, column=0, padx=5, pady=5, sticky="n")
-
-        self.PVARP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="PVARP (150-500ms)")
-        self.PVARP_entry.grid(row=7, column=0, padx=5, pady=5, sticky="n")
+        self.ARP_entry.grid(row=5, column=0, padx=5, pady=5, sticky="n")
 
         # Initially disabled save button
         self.save_button = ctk.CTkButton(self.parameters_frame, text="Save Parameters", command=self.save_parameters, state="enabled")
-        self.save_button.grid(row=8, column=0, padx=5, pady=10, sticky="n")
+        self.save_button.grid(row=6, column=0, padx=5, pady=10, sticky="n")
 
         self.invalid_input_label = ctk.CTkLabel(self.parameters_frame, text="Invalid Input. Please enter values within the specified range.", font=("Helvetica", 12), text_color="red")
         self.valid_input_label = ctk.CTkLabel(self.parameters_frame, text="Parameters Saved!", font=("Helvetica", 12), text_color="green")
@@ -584,7 +573,7 @@ class Window(ctk.CTk):
     def init_VVI(self):
         for widget in self.parameters_frame.winfo_children():
             widget.destroy()
-        for i in range(10):
+        for i in range(9):
             self.parameters_frame.grid_rowconfigure(i, weight=1)
         self.parameters_frame.grid_columnconfigure(0, weight=1)
 
@@ -605,9 +594,6 @@ class Window(ctk.CTk):
         self.VenPW_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="VenPW (0.05-1.9ms)")
         self.VenPW_entry.grid(row=4, column=0, padx=5, pady=5, sticky="n")
 
-        self.VenSens_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="VenSens (1-10 mV)")
-        self.VenSens_entry.grid(row=5, column=0, padx=5, pady=5, sticky="n")
-
         self.VRP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="VRP (150-500ms)")
         self.VRP_entry.grid(row=6, column=0, padx=5, pady=5, sticky="n")
 
@@ -621,7 +607,7 @@ class Window(ctk.CTk):
     def init_AOOR(self):
         for widget in self.parameters_frame.winfo_children():
             widget.destroy()
-        for i in range(6):
+        for i in range(7):
             self.parameters_frame.grid_rowconfigure(i, weight=1)
         for j in range(2):
             self.parameters_frame.grid_columnconfigure(j, weight=1)
@@ -654,11 +640,14 @@ class Window(ctk.CTk):
 
         self.ActivityThreshold_var = ctk.StringVar(value="Activity Threshold")  # Default value
         self.ActivityThreshold_entry = ctk.CTkOptionMenu(self.parameters_frame, variable=self.ActivityThreshold_var, values=["VL", "L", "ML", "M", "MH", "H", "VH"], fg_color="white", text_color="gray")
-        self.ActivityThreshold_entry.grid(row=4, column=1, padx=5, pady=5, sticky="n")
+        self.ActivityThreshold_entry.grid(row=5, column=0,columnspan=2, padx=5, pady=5, sticky="n")
+
+        self.MaxSensorRate_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Max Sensor Rate (50-175ppm)")
+        self.MaxSensorRate_entry.grid(row=4, column=1, padx=5, pady=5, sticky="n")
 
         # Initially enabled save button
         self.save_button = ctk.CTkButton(self.parameters_frame, text="Save Parameters", command=self.save_parameters, state="enabled")
-        self.save_button.grid(row=5, column=0, columnspan=2, padx=5, pady=10, sticky="n")
+        self.save_button.grid(row=6, column=0, columnspan=2, padx=5, pady=10, sticky="n")
 
         self.invalid_input_label = ctk.CTkLabel(self.parameters_frame, text="Invalid Input. Please enter values within the specified range.", font=("Helvetica", 12), text_color="red")
         self.valid_input_label = ctk.CTkLabel(self.parameters_frame, text="Parameters Saved!", font=("Helvetica", 12), text_color="green")
@@ -666,7 +655,7 @@ class Window(ctk.CTk):
     def init_VOOR(self):
         for widget in self.parameters_frame.winfo_children():
             widget.destroy()
-        for i in range(6):
+        for i in range(7):
             self.parameters_frame.grid_rowconfigure(i, weight=1)
         for j in range(2):
             self.parameters_frame.grid_columnconfigure(j, weight=1)
@@ -699,11 +688,14 @@ class Window(ctk.CTk):
 
         self.ActivityThreshold_var = ctk.StringVar(value="Activity Threshold")  # Default value
         self.ActivityThreshold_entry = ctk.CTkOptionMenu(self.parameters_frame, variable=self.ActivityThreshold_var, values=["VL", "L", "ML", "M", "MH", "H", "VH"], fg_color="white", text_color="gray")
-        self.ActivityThreshold_entry.grid(row=4, column=1, padx=5, pady=5, sticky="n")
+        self.ActivityThreshold_entry.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="n")
+
+        self.MaxSensorRate_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Max Sensor Rate (50-175ppm)")
+        self.MaxSensorRate_entry.grid(row=4, column=1, padx=5, pady=5, sticky="n")
 
         # Initially enabled save button
         self.save_button = ctk.CTkButton(self.parameters_frame, text="Save Parameters", command=self.save_parameters, state="enabled")
-        self.save_button.grid(row=5, column=0, columnspan=2, padx=5, pady=10, sticky="n")
+        self.save_button.grid(row=6, column=0, columnspan=2, padx=5, pady=10, sticky="n")
 
         self.invalid_input_label = ctk.CTkLabel(self.parameters_frame, text="Invalid Input. Please enter values within the specified range.", font=("Helvetica", 12), text_color="red")
         self.valid_input_label = ctk.CTkLabel(self.parameters_frame, text="Parameters Saved!", font=("Helvetica", 12), text_color="green")
@@ -733,27 +725,26 @@ class Window(ctk.CTk):
         self.AtrPW_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="AtrPW (0.05-1.9ms)")
         self.AtrPW_entry.grid(row=2, column=1, padx=5, pady=5, sticky="n")
 
-        self.AtrSens_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="AtrSens (1-10 mV)")
-        self.AtrSens_entry.grid(row=3, column=0, padx=5, pady=5, sticky="n")
 
         self.ARP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="ARP (150-500ms)")
-        self.ARP_entry.grid(row=3, column=1, padx=5, pady=5, sticky="n")
+        self.ARP_entry.grid(row=3, column=0, padx=5, pady=5, sticky="n")
 
-        self.PVARP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="PVARP (150-500ms)")
-        self.PVARP_entry.grid(row=4, column=0, padx=5, pady=5, sticky="n")
 
         self.ReactionTime_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Reaction Time (10-50s)")
-        self.ReactionTime_entry.grid(row=4, column=1, padx=5, pady=5, sticky="n")
+        self.ReactionTime_entry.grid(row=3, column=1, padx=5, pady=5, sticky="n")
 
         self.RecoveryTime_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Recovery Time (2-16mins)")
-        self.RecoveryTime_entry.grid(row=5, column=0, padx=5, pady=5, sticky="n")
+        self.RecoveryTime_entry.grid(row=4, column=0, padx=5, pady=5, sticky="n")
 
         self.ResponseFactor_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Response Factor (1-16)")
-        self.ResponseFactor_entry.grid(row=5, column=1, padx=5, pady=5, sticky="n")
+        self.ResponseFactor_entry.grid(row=4, column=1, padx=5, pady=5, sticky="n")
 
         self.ActivityThreshold_var = ctk.StringVar(value="Activity Threshold")  # Default value
         self.ActivityThreshold_entry = ctk.CTkOptionMenu(self.parameters_frame, variable=self.ActivityThreshold_var, values=["VL", "L", "ML", "M", "MH", "H", "VH"], fg_color="white", text_color="gray")
-        self.ActivityThreshold_entry.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="n")
+        self.ActivityThreshold_entry.grid(row=5, column=0,padx=5, pady=5, sticky="n")
+
+        self.MaxSensorRate_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Max Sensor Rate (50-175ppm)")
+        self.MaxSensorRate_entry.grid(row=5, column=1, padx=5, pady=5, sticky="n")
 
         # Initially enabled save button
         self.save_button = ctk.CTkButton(self.parameters_frame, text="Save Parameters", command=self.save_parameters, state="enabled")
@@ -787,28 +778,29 @@ class Window(ctk.CTk):
         self.VenPW_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="VenPW (0.05-1.9ms)")
         self.VenPW_entry.grid(row=2, column=1, padx=5, pady=5, sticky="n")
 
-        self.VenSens_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="VenSens (1-10 mV)")
-        self.VenSens_entry.grid(row=3, column=0, padx=5, pady=5, sticky="n")
 
         self.VRP_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="VRP (150-500ms)")
-        self.VRP_entry.grid(row=3, column=1, padx=5, pady=5, sticky="n")
+        self.VRP_entry.grid(row=3, column=0, padx=5, pady=5, sticky="n")
 
         self.ReactionTime_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Reaction Time (10-50s)")
-        self.ReactionTime_entry.grid(row=4, column=0, padx=5, pady=5, sticky="n")
+        self.ReactionTime_entry.grid(row=3, column=1, padx=5, pady=5, sticky="n")
 
         self.RecoveryTime_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Recovery Time (2-16mins)")
-        self.RecoveryTime_entry.grid(row=4, column=1, padx=5, pady=5, sticky="n")
+        self.RecoveryTime_entry.grid(row=4, column=0, padx=5, pady=5, sticky="n")
 
         self.ResponseFactor_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Response Factor (1-16)")
-        self.ResponseFactor_entry.grid(row=5, column=0, padx=5, pady=5, sticky="n")
+        self.ResponseFactor_entry.grid(row=4, column=1, padx=5, pady=5, sticky="n")
 
         self.ActivityThreshold_var = ctk.StringVar(value="Activity Threshold")  # Default value
         self.ActivityThreshold_entry = ctk.CTkOptionMenu(self.parameters_frame, variable=self.ActivityThreshold_var, values=["VL", "L", "ML", "M", "MH", "H", "VH"], fg_color="white", text_color="gray")
-        self.ActivityThreshold_entry.grid(row=5, column=1, padx=5, pady=5, sticky="n")
+        self.ActivityThreshold_entry.grid(row=5, column=0, padx=5, pady=5, sticky="n")
+
+        self.MaxSensorRate_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Max Sensor Rate (50-175ppm)")
+        self.MaxSensorRate_entry.grid(row=5, column=1, padx=5, pady=5, sticky="n")
 
         # Initially enabled save button
         self.save_button = ctk.CTkButton(self.parameters_frame, text="Save Parameters", command=self.save_parameters, state="enabled")
-        self.save_button.grid(row=6, column=0, columnspan=2, padx=5, pady=10, sticky="n")
+        self.save_button.grid(row=7, column=0, columnspan=2, padx=5, pady=10, sticky="n")
 
         self.invalid_input_label = ctk.CTkLabel(self.parameters_frame, text="Invalid Input. Please enter values within the specified range.", font=("Helvetica", 12), text_color="red")
         self.valid_input_label = ctk.CTkLabel(self.parameters_frame, text="Parameters Saved!", font=("Helvetica", 12), text_color="green")
@@ -1225,41 +1217,41 @@ class Window(ctk.CTk):
         self.connection_status_label.configure(text=status_text)
 
 
-def save_parameters(self):
-    try:
-        # Retrieve and validate inputs
-        lrl = int(self.LRL_entry.get())
-        url = int(self.URL_entry.get())
-        atr_amp = float(self.AtrAMP_entry.get())
-        atr_pw = float(self.AtrPW_entry.get())
+# def save_parameters(self):
+#     try:
+#         # Retrieve and validate inputs
+#         lrl = int(self.LRL_entry.get())
+#         url = int(self.URL_entry.get())
+#         atr_amp = float(self.AtrAMP_entry.get())
+#         atr_pw = float(self.AtrPW_entry.get())
 
-        # Add validation logic for ranges (example ranges; replace with actual device specs)
-        if not (30 <= lrl <= 175):
-            raise ValueError("LRL must be between 30 and 175.")
-        if not (50 <= url <= 175):
-            raise ValueError("URL must be between 50 and 175.")
-        if not (0.0 <= atr_amp <= 5.0):
-            raise ValueError("Atrial Amplitude must be between 0.0 and 5.0 volts.")
-        if not (0.05 <= atr_pw <= 1.9):
-            raise ValueError("Atrial Pulse Width must be between 0.05 and 1.9 ms.")
+#         # Add validation logic for ranges (example ranges; replace with actual device specs)
+#         if not (30 <= lrl <= 175):
+#             raise ValueError("LRL must be between 30 and 175.")
+#         if not (50 <= url <= 175):
+#             raise ValueError("URL must be between 50 and 175.")
+#         if not (0.0 <= atr_amp <= 5.0):
+#             raise ValueError("Atrial Amplitude must be between 0.0 and 5.0 volts.")
+#         if not (0.05 <= atr_pw <= 1.9):
+#             raise ValueError("Atrial Pulse Width must be between 0.05 and 1.9 ms.")
 
-        # Construct a bytearray or other data structure
-        params = bytearray(20)  # Example size; adjust based on your data structure
-        params[0:1] = lrl.to_bytes(1, 'little')  # Example for LRL
-        params[1:2] = url.to_bytes(1, 'little')  # Example for URL
-        struct.pack_into('f', params, 2, atr_amp)  # Example for atr_amp
-        struct.pack_into('f', params, 6, atr_pw)  # Example for atr_pw
+#         # Construct a bytearray or other data structure
+#         params = bytearray(20)  # Example size; adjust based on your data structure
+#         params[0:1] = lrl.to_bytes(1, 'little')  # Example for LRL
+#         params[1:2] = url.to_bytes(1, 'little')  # Example for URL
+#         struct.pack_into('f', params, 2, atr_amp)  # Example for atr_amp
+#         struct.pack_into('f', params, 6, atr_pw)  # Example for atr_pw
 
-        # Call the send_data() function
-        send_data(params)
+#         # Call the send_data() function
+#         send_data(params)
 
-    except ValueError as ve:
-        # ctk error handling msg here
-        pass
-    except Exception as e:
-        # ctk error handling msg here
+#     except ValueError as ve:
+#         # ctk error handling msg here
+#         pass
+#     except Exception as e:
+#         # ctk error handling msg here
 
-        pass
+#         pass
 
 
 # Add entry boxes for pacemaker values - save pacemaker values in users.txt
