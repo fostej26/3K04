@@ -10,8 +10,10 @@ import matplotlib.animation as animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 import json
-import serial
-# from serial_transmission_remastered import send_data
+import serial 
+import struct
+
+from serial_transmission_remastered import get_atr_vent_graphing_data, connect_serial_port, check_serial_port
 
 from yarl import URL
 
@@ -229,6 +231,16 @@ class Window(ctk.CTk):
         self.message_label = ctk.CTkLabel(self, text="")  # Create a message label for status messages
         self.message_label.pack()  # Place the label in the window
         self.init_login_page() 
+
+        self.x = []
+        self.y = []
+
+        port = serial.Serial()
+        port.baudrate = 115200
+        port.port = 'COM6'
+        port.timeout = 10
+
+        
 
     def handle_register(self):
         username = self.username_entry.get()
@@ -1124,22 +1136,23 @@ class Window(ctk.CTk):
         line, = ax.plot([], [], lw=2)
 
         # Set the limits of our graph
-        ax.set_xlim(0, 2 * np.pi)
-        ax.set_ylim(-1.5, 1.5)
+        ax.set_xlim(0, 5000)
+        ax.set_ylim(-1.5, 5)
 
         # Animation function (i is the frame)
         def animate(i):
-
-            # The plotted x and y values
-            x = np.linspace(0, 2 * np.pi, 1000)
-            y = np.sin(x + i / 10.0)
+            
+            _, vent_data = get_atr_vent_graphing_data()
+           
+            n = np.arange(len(vent_data))
 
             # Append the values to the previously empty x and y data sets
-            line.set_data(x, y)
+            line.set_ydata(vent_data)
+            line.set_xdata(n)
             return line,
 
         # Call the animation function and draw to the egraphs_frame
-        ani = animation.FuncAnimation(fig, animate, frames=1000, interval=50, blit=True)
+        ani = animation.FuncAnimation(fig, animate, frames=100, interval=50, blit=True)
         canvas = FigureCanvasTkAgg(fig, master=self.egraphs_frame)
         canvas.draw()
         canvas.get_tk_widget().grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
@@ -1158,18 +1171,19 @@ class Window(ctk.CTk):
         line, = ax.plot([], [], lw=3)
 
         # Set the limits of our graph
-        ax.set_xlim(0, 4)
-        ax.set_ylim(-2, 2)
+        ax.set_xlim(0, 5000)
+        ax.set_ylim(-1.5, 5)
 
         # Animation function (i is the frame)
         def animate(i):
 
-            # The plotted x and y values
-            x = np.linspace(0, 4, 1000)
-            y = np.sin(2 * np.pi * (x-0.01*i))
+            atr_data, _ = get_atr_vent_graphing_data()
+
+            n = np.arange(len(atr_data))
 
             # Append the values to the previously empty x and y data sets
-            line.set_data(x, y)
+            line.set_ydata(atr_data)
+            line.set_xdata(n)
             return line,
 
         # Call the animation function and draw to the egraphs_frame
@@ -1178,18 +1192,16 @@ class Window(ctk.CTk):
         canvas.draw()
         canvas.get_tk_widget().grid(row=9, column=0, padx=5, pady=5, sticky="nsew")
 
+    def check_serial(self):
+        check_serial_port()
+        self.after(ms= 20, func= self.check_serial)
+
     def connect_pm(self):
         """Attempts to connect to the pacemaker."""
         try:
-            self.newserial = serial.Serial(
-                port="COM4", 
-                baudrate=115200, 
-                timeout=10, 
-                parity=serial.PARITY_NONE, 
-                stopbits=serial.STOPBITS_ONE, 
-                bytesize=serial.EIGHTBITS
-            )
+            connect_serial_port()
             self.update_connection_status()  # Update the label on successful connection
+            self.after(ms= 20, func= self.check_serial)
         except serial.SerialException as e:
             self.newserial = None
             print(f"Failed to connect: {e}")
@@ -1257,7 +1269,6 @@ class Window(ctk.CTk):
 # Add entry boxes for pacemaker values - save pacemaker values in users.txt
 # Add confirm button for select pacemaker mode
 # Consider the ranges for the programmable data
-
 
 
 # Start the event loop

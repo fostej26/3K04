@@ -3,18 +3,24 @@ import json
 import os
 import serial
 
-# Serial port setup
 port = serial.Serial()
-port.baudrate = 115200
-port.port = 'COM6'
-port.timeout = 10
+# Serial port setup
+def connect_serial_port():
+    try:
+        port.baudrate = 115200
+        port.port = 'COM6'
+        port.timeout = 10
 
-port.open()
-print(port.is_open)
-
-flag = True
+        port.open()
+        print(port.is_open)
+    except serial.SerialException as e:
+        return e
+    
 data_counts = 0
 arr = 0
+
+atr_graphing_data = []
+vent_graphing_data = []
 
 # Load valid usernames from users.txt
 # def load_users(file_name='users.txt'):
@@ -25,42 +31,79 @@ arr = 0
 #         return [line.strip() for line in file.readlines()]
 
 # Write parameters to JSON under the given username
-def write_to_json(username, params_dict, file_name='parameters.json'):
-    if not os.path.exists(file_name):
-        with open(file_name, 'w') as file:
-            json.dump({}, file)
+# def write_to_json(username, params_dict, file_name='parameters.json'):
+#     if not os.path.exists(file_name):
+#         with open(file_name, 'w') as file:
+#             json.dump({}, file)
 
-    with open(file_name, 'r+') as file:
-        data = json.load(file)
-        if username not in data:
-            data[username] = []
-        data[username].append(params_dict)
-        file.seek(0)
-        json.dump(data, file, indent=4)
+#     with open(file_name, 'r+') as file:
+#         data = json.load(file)
+#         if username not in data:
+#             data[username] = []
+#         data[username].append(params_dict)
+#         file.seek(0)
+#         json.dump(data, file, indent=4)
 
 # Class to store parameters
 class Params:
     def __init__(self, data):
-        self.mode = data[0]
-        self.lrl = data[1]
-        self.url = data[2]
-        self.atr_pulse_amplitude = struct.unpack('f', data[3:7])
-        self.atr_pulse_width = struct.unpack('f', data[7:11])
-        self.vent_pulse_amplitude = struct.unpack('f', data[11:15])
-        self.vent_pulse_width = struct.unpack('f', data[15:19])
-        self.vrp = struct.unpack('H', data[19:21])
-        self.arp = struct.unpack('H', data[21:23])
-        self.max_sensor_rate = data[23]
-        self.reaction_time = data[24]
-        self.response_factor = data[25]
-        self.recovery_time = data[26]
-        self.activity_threshold = data[27]
-        self.atrial_data = list(struct.unpack('10f', data[28:68]))
-        self.ventricle_data = list(struct.unpack('10f', data[68:108]))
+        self.name = data[0]
+        if self.name == 1:
+            self.name = 'AOO'
+        elif self.name == 2:
+            self.name = 'VOO'
+        elif self.name == 3:
+            self.name = 'AAI'
+        elif self.name == 4:
+            self.name = 'VVI'
+        elif self.name == 5:
+            self.name = 'AOOR'
+        elif self.name == 6:
+            self.name = 'VOOR'
+        elif self.name == 7:
+            self.name = 'AAIR'
+        elif self.name == 8:
+            self.name = 'VVIR'
+        else:
+            self.name = 'Unknown'
+
+        self.LRL = str(data[1])
+        self.URL = str(data[2])
+        self.AtrAMP = str(struct.unpack('f', data[3:7])[0])
+        self.AtrPW = str(struct.unpack('f', data[7:11])[0])
+        self.VenAMP = str(struct.unpack('f', data[11:15])[0])
+        self.VenPW = str(struct.unpack('f', data[15:19])[0])
+        self.ARP = str(struct.unpack('H', data[21:23])[0])
+        self.VRP = str(struct.unpack('H', data[19:21])[0])
+        self.ReactionTime = str(data[24])
+        self.RecoveryTime = str(data[26])
+        self.ResponseFactor = str(data[25])
+        self.ActivityThreshold = str(data[27])
+
+        if self.ActivityThreshold == 1:
+            self.ActivityThreshold = 'VL'
+        elif self.ActivityThreshold == 2:
+            self.ActivityThreshold = 'L'
+        elif self.ActivityThreshold == 3:
+            self.ActivityThreshold = 'ML'
+        elif self.ActivityThreshold == 4:
+            self.ActivityThreshold = 'M'
+        elif self.ActivityThreshold == 5:
+            self.ActivityThreshold = 'MH'
+        elif self.ActivityThreshold == 6:
+            self.ActivityThreshold = 'H'
+        elif self.ActivityThreshold == 7:
+            self.ActivityThreshold = 'VH'
+
+        self.MaxSensorRate = str(data[23])
 
     def to_dict(self):
 
         return self.__dict__
+    
+
+def get_atr_vent_graphing_data():
+    return atr_graphing_data, vent_graphing_data
 
 
 def send_data(data):
@@ -74,32 +117,45 @@ def send_data(data):
 
 
 # Prompt for username
-users = load_users()
-if not users:
-    print("No valid users found. Exiting.")
-    exit()
+# users = load_users()
+# if not users:
+#     print("No valid users found. Exiting.")
+#     exit()
 
-username = input("Enter your username: ").strip()
-if username not in users:
-    print("Invalid username. Exiting.")
-    exit()
+# username = input("Enter your username: ").strip()
+# if username not in users:
+#     print("Invalid username. Exiting.")
+#     exit()
 
 # Main data processing loop
-while flag:
-    first_byte = port.read(1)
-    if len(first_byte) == 1 and int.from_bytes(first_byte, byteorder='big') == 7:
-        arr = bytearray(108)
-        port.readinto(arr)
+def check_serial_port():
+    if port.is_open:
+        first_byte = port.read(1)
+        if len(first_byte) == 1 and int.from_bytes(first_byte, byteorder='big') == 7:
+            arr = bytearray(108)
+            port.readinto(arr)
 
-        # Parse the byte array into parameters
-        params = Params(arr)
+            # Parse the byte array into parameters
+            params = Params(arr)
 
-        # Save the parameters under the given username
-        write_to_json(username, params.to_dict())
-    else:
-        port.reset_input_buffer()
-        print('Unexpected message format: flushing input and resetting')
+            # Save the parameters under the given username
+            # write_to_json(username, params.to_dict())
+            
+            global atr_graphing_data
+            global vent_graphing_data
 
-    data_counts += 1
+            atr_data = struct.unpack('10f', arr[28:68])
+            vent_data = struct.unpack('10f', arr[68:108])
 
+            for atr_item in atr_data:
+                atr_graphing_data.append(atr_item)
 
+            for vent_item in vent_data:
+                vent_graphing_data.append(vent_item)
+
+            atr_graphing_data = atr_graphing_data[-5000:]
+            vent_graphing_data = vent_graphing_data[-5000:]
+
+        else:
+            port.reset_input_buffer()
+            print('Unexpected message format: flushing input and resetting')

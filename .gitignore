@@ -3,3 +3,5 @@ test.py
 .venv
 /venv
 parameters.json
+.pyc
+/__pychache__
