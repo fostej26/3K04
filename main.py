@@ -80,8 +80,6 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, ARP, VRP, Reaction
             return False
         if not (is_float(ResponseFactor) and 1 <= float(ResponseFactor) <= 16):
             return False
-        if not ActivityThreshold != "VL":
-            return False
         if not (is_float(MaxSensorRate) and 50 <= float(MaxSensorRate) <= 175):
             return False
         return True
@@ -100,8 +98,6 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, ARP, VRP, Reaction
         if not (is_float(RecoveryTime) and 2 <= float(RecoveryTime) <= 16):
             return False
         if not (is_float(ResponseFactor) and 1 <= float(ResponseFactor) <= 16):
-            return False
-        if not ActivityThreshold != "VL":
             return False
         if not (is_float(MaxSensorRate) and 50 <= float(MaxSensorRate) <= 175):
             return False
@@ -124,8 +120,6 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, ARP, VRP, Reaction
             return False
         if not (is_float(ResponseFactor) and 1 <= float(ResponseFactor) <= 16):
             return False
-        if not ActivityThreshold != "VL":
-            return False
         if not (is_float(MaxSensorRate) and 50 <= float(MaxSensorRate) <= 175):
             return False
         return True
@@ -146,8 +140,6 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, ARP, VRP, Reaction
         if not (is_float(RecoveryTime) and 2 <= float(RecoveryTime) <= 16):
             return False
         if not (is_float(ResponseFactor) and 1 <= float(ResponseFactor) <= 16):
-            return False
-        if not ActivityThreshold != "VL":
             return False
         if not (is_float(MaxSensorRate) and 50 <= float(MaxSensorRate) <= 175):
             return False
