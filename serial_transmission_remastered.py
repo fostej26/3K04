@@ -8,11 +8,10 @@ port = serial.Serial()
 def connect_serial_port():
     try:
         port.baudrate = 115200
-        port.port = 'COM6'
+        port.port = 'COM4'
         port.timeout = 10
 
         port.open()
-        print(port.is_open)
     except serial.SerialException as e:
         return e
     
@@ -115,6 +114,54 @@ def send_data(data):
     else:
         print("Port is not open, cannot send data.")
 
+def verify_data(current_username, data, file_name='parameters.json'):
+    """Function to verify data against stored parameters for the current user."""
+    print(f"Verifying data for user: {current_username}")
+    # Load the stored parameters
+    with open(file_name, 'r') as file:
+        stored_data = json.load(file)
+    
+    # Ensure stored_data is a list
+    if not isinstance(stored_data, list):
+        print("Error: Stored data is not a list.")
+        return False
+    
+    # Find the data for the current user
+    user_data = next((ud for ud in stored_data if ud.get("username") == current_username), None)
+    if not user_data:
+        print(f"No data found for user: {current_username}")
+        return False
+    
+    params_list = user_data.get("modes", [])
+    
+    # Check if the data matches any stored parameters for the current user
+    for params in params_list:
+        match = True
+        for key in params:
+            if key in data:
+                param_value = params[key]
+                data_value = data[key]
+                try:
+                    param_value = float(param_value)
+                    data_value = float(data_value)
+                    if abs(param_value - data_value) / param_value > 0.005:
+                        match = False
+                        break
+                except ValueError:
+                    if param_value != data_value:
+                        match = False
+                        break
+            else:
+                match = False
+                break
+
+        if match:
+            print("Data matches stored parameters.")
+            return True
+
+    print("Data does not match stored parameters.")
+    return False
+
 
 # Prompt for username
 # users = load_users()
@@ -128,7 +175,7 @@ def send_data(data):
 #     exit()
 
 # Main data processing loop
-def check_serial_port():
+def check_serial_port(username):
     if port.is_open:
         first_byte = port.read(1)
         if len(first_byte) == 1 and int.from_bytes(first_byte, byteorder='big') == 7:
@@ -137,7 +184,7 @@ def check_serial_port():
 
             # Parse the byte array into parameters
             params = Params(arr)
-
+            print(verify_data(username, params.to_dict(), 'parameters.json'))
             # Save the parameters under the given username
             # write_to_json(username, params.to_dict())
             

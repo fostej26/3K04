@@ -13,8 +13,7 @@ import json
 import serial 
 import struct
 
-from serial_transmission_remastered import get_atr_vent_graphing_data, connect_serial_port, check_serial_port
-
+from serial_transmission_remastered import *
 from yarl import URL
 
 def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, ARP, VRP, ReactionTime, RecoveryTime, ResponseFactor, ActivityThreshold,MaxSensorRate):
@@ -1193,8 +1192,11 @@ class Window(ctk.CTk):
         canvas.get_tk_widget().grid(row=9, column=0, padx=5, pady=5, sticky="nsew")
 
     def check_serial(self):
-        check_serial_port()
+        username = self.user.get_username()
+        check_serial_port(username)
         self.after(ms= 20, func= self.check_serial)
+        
+
 
     def connect_pm(self):
         """Attempts to connect to the pacemaker."""
