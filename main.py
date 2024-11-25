@@ -240,7 +240,49 @@ class Window(ctk.CTk):
         port.port = 'COM6'
         port.timeout = 10
 
-        
+
+    def check_params_json(self):
+
+        try:
+            with open("parameters.json", "r") as f:
+                users = json.load(f)
+        except FileNotFoundError:
+            users = []
+
+        self.mode = Mode()
+        mode_name = self.pacemaker_mode_var.get()
+
+        mode_data = {
+            "name": self.mode.name,
+            "LRL": self.mode.LRL,
+            "URL": self.mode.URL,
+            "AtrAMP": self.mode.AtrAMP,
+            "AtrPW": self.mode.AtrPW,
+            "VenAMP": self.mode.VenAMP,
+            "VenPW": self.mode.VenPW,
+            "ARP": self.mode.ARP,
+            "VRP": self.mode.VRP,
+            "ReactionTime": self.mode.ReactionTime,
+            "RecoveryTime": self.mode.RecoveryTime,
+            "ResponseFactor": self.mode.ResponseFactor,
+            "ActivityThreshold": self.mode.ActivityThreshold,
+            "MaxSensorRate": self.mode.MaxSensorRate
+        }
+
+        for user in users:
+            if "modes" not in user:
+                user["modes"] = []
+            for i, mode in enumerate(user["modes"]):
+                if mode["name"] == mode_name:
+                    user["modes"][i] = mode_data
+                    break
+
+
+
+
+    def check_params(self):
+        self.check_params_json()
+        self.after(ms= 20, func=self.check_params_json)
 
     def handle_register(self):
         username = self.username_entry.get()
