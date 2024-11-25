@@ -92,21 +92,21 @@ class Params:
         self.ReactionTime = str(data[24])
         self.RecoveryTime = str(data[26])
         self.ResponseFactor = str(data[25])
-        self.ActivityThreshold = str(data[27])
+        self.ActivityThreshold = data[27]
 
-        if self.ActivityThreshold == 1:
+        if self.ActivityThreshold == 0:
             self.ActivityThreshold = 'VL'
-        elif self.ActivityThreshold == 2:
+        elif self.ActivityThreshold == 1:
             self.ActivityThreshold = 'L'
-        elif self.ActivityThreshold == 3:
+        elif self.ActivityThreshold == 2:
             self.ActivityThreshold = 'ML'
-        elif self.ActivityThreshold == 4:
+        elif self.ActivityThreshold == 3:
             self.ActivityThreshold = 'M'
-        elif self.ActivityThreshold == 5:
+        elif self.ActivityThreshold == 4:
             self.ActivityThreshold = 'MH'
-        elif self.ActivityThreshold == 6:
+        elif self.ActivityThreshold == 5:
             self.ActivityThreshold = 'H'
-        elif self.ActivityThreshold == 7:
+        elif self.ActivityThreshold == 6:
             self.ActivityThreshold = 'VH'
 
         self.MaxSensorRate = str(data[23])
@@ -129,9 +129,9 @@ def send_data(data):
     else:
         print("Port is not open, cannot send data.")
 
-def verify_data(current_username, data, file_name='parameters.json'):
-    """Function to verify data against stored parameters for the current user."""
-    print(f"Verifying data for user: {current_username}")
+def verify_data(current_username, current_mode, data, file_name='parameters.json'):
+    """Function to verify data against stored parameters for the current user and mode."""
+    print(f"Verifying data for user: {current_username}, mode: {current_mode}")
     # Load the stored parameters
     with open(file_name, 'r') as file:
         stored_data = json.load(file)
@@ -147,35 +147,32 @@ def verify_data(current_username, data, file_name='parameters.json'):
         print(f"No data found for user: {current_username}")
         return False
     
-    params_list = user_data.get("modes", [])
+    # Find the parameters for the current mode
+    mode_params = next((mode for mode in user_data.get("modes", []) if mode.get("name") == current_mode), None)
+    if not mode_params:
+        print(f"No parameters found for mode: {current_mode}")
+        return False
     
-    # Check if the data matches any stored parameters for the current user
-    for params in params_list:
-        match = True
-        for key in params:
-            if key in data:
-                param_value = params[key]
-                data_value = data[key]
-                try:
-                    param_value = float(param_value)
-                    data_value = float(data_value)
-                    if abs(param_value - data_value) / param_value > 0.005:
-                        match = False
-                        break
-                except ValueError:
-                    if param_value != data_value:
-                        match = False
-                        break
-            else:
-                match = False
-                break
-
-        if match:
-            print("Data matches stored parameters.")
-            return True
-
-    print("Data does not match stored parameters.")
-    return False
+    # Compare each parameter
+    for key, param_value in mode_params.items():
+        if key in data:
+            data_value = data[key]
+            try:
+                param_value = float(param_value)
+                data_value = float(data_value)
+                if abs(param_value - data_value) / param_value > 0.05:
+                    print(f"Mismatch in {key}: {param_value} vs {data_value}")
+                    return False
+            except ValueError:
+                if param_value != data_value:
+                    print(f"Mismatch in {key}: {param_value} vs {data_value}")
+                    return False
+        else:
+            print(f"Missing key in data: {key}")
+            return False
+    
+    print("Data matches stored parameters for the current user and mode.")
+    return True
 
 
 # Prompt for username
@@ -190,18 +187,16 @@ def verify_data(current_username, data, file_name='parameters.json'):
 #     exit()
 
 # Main data processing loop
-def check_serial_port(username):
+def check_serial_port(username,mode):
     if port.is_open:
         first_byte = port.read(1)
         if len(first_byte) == 1 and int.from_bytes(first_byte, byteorder='big') == 7:
             arr = bytearray(108)
             port.readinto(arr)
 
-            counter += 1
-
             # Parse the byte array into parameters
             params = Params(arr)
-            print(verify_data(username, params.to_dict(), 'parameters.json'))
+            print(verify_data(username,mode, params.to_dict(), 'parameters.json'))
             # Save the parameters under the given username
             # write_to_json(username, params.to_dict())
             

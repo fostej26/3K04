@@ -20,9 +20,9 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, ARP, VRP, Reaction
     if Name == "AOO":
         if not (is_float(LRL) and 30 <= float(LRL) <= 175):
             return False
-        if not (is_float(URL) and 50 <= float(URL) <= 175):
+        if not (is_float(URL) and 60 <= float(URL) <= 175):
             return False
-        if not (is_float(AtrAMP) and 0 <= float(AtrAMP) <= 5):
+        if not (is_float(AtrAMP) and 0.5 <= float(AtrAMP) <= 5):
             return False
         if not (is_float(AtrPW) and 0.05 <= float(AtrPW) <= 1.9):
             return False
@@ -31,9 +31,9 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, ARP, VRP, Reaction
     if Name == "VOO":
         if not (is_float(LRL) and 30 <= float(LRL) <= 175):
             return False
-        if not (is_float(URL) and 50 <= float(URL) <= 175):
+        if not (is_float(URL) and 60 <= float(URL) <= 175):
             return False
-        if not (is_float(VenAMP) and 0 <= float(VenAMP) <= 5):
+        if not (is_float(VenAMP) and 0.5 <= float(VenAMP) <= 5):
             return False
         if not (is_float(VenPW) and 0.05 <= float(VenPW) <= 1.9):
             return False
@@ -42,9 +42,9 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, ARP, VRP, Reaction
     if Name == "AAI":
         if not (is_float(LRL) and 30 <= float(LRL) <= 175):
             return False
-        if not (is_float(URL) and 50 <= float(URL) <= 175):
+        if not (is_float(URL) and 60 <= float(URL) <= 175):
             return False
-        if not (is_float(AtrAMP) and 0 <= float(AtrAMP) <= 5):
+        if not (is_float(AtrAMP) and 0.5 <= float(AtrAMP) <= 5):
             return False
         if not (is_float(AtrPW) and 0.05 <= float(AtrPW) <= 1.9):
             return False
@@ -55,9 +55,9 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, ARP, VRP, Reaction
     if Name == "VVI":
         if not (is_float(LRL) and 30 <= float(LRL) <= 175):
             return False
-        if not (is_float(URL) and 50 <= float(URL) <= 175):
+        if not (is_float(URL) and 60 <= float(URL) <= 175):
             return False
-        if not (is_float(VenAMP) and 0 <= float(VenAMP) <= 5):
+        if not (is_float(VenAMP) and 0.5 <= float(VenAMP) <= 5):
             return False
         if not (is_float(VenPW) and 0.05 <= float(VenPW) <= 1.9):
             return False
@@ -68,9 +68,9 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, ARP, VRP, Reaction
     if Name == "AOOR":
         if not (is_float(LRL) and 30 <= float(LRL) <= 175):
             return False
-        if not (is_float(URL) and 50 <= float(URL) <= 175):
+        if not (is_float(URL) and 60 <= float(URL) <= 175):
             return False
-        if not (is_float(AtrAMP) and 0 <= float(AtrAMP) <= 5):
+        if not (is_float(AtrAMP) and 0.5 <= float(AtrAMP) <= 5):
             return False
         if not (is_float(AtrPW) and 0.05 <= float(AtrPW) <= 1.9):
             return False
@@ -80,7 +80,7 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, ARP, VRP, Reaction
             return False
         if not (is_float(ResponseFactor) and 1 <= float(ResponseFactor) <= 16):
             return False
-        if not ActivityThreshold != "Activity Threshold":
+        if not ActivityThreshold != "VL":
             return False
         if not (is_float(MaxSensorRate) and 50 <= float(MaxSensorRate) <= 175):
             return False
@@ -89,9 +89,9 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, ARP, VRP, Reaction
     if Name == "VOOR":
         if not (is_float(LRL) and 30 <= float(LRL) <= 175):
             return False
-        if not (is_float(URL) and 50 <= float(URL) <= 175):
+        if not (is_float(URL) and 60 <= float(URL) <= 175):
             return False
-        if not (is_float(VenAMP) and 0 <= float(VenAMP) <= 5):
+        if not (is_float(VenAMP) and 0.5 <= float(VenAMP) <= 5):
             return False
         if not (is_float(VenPW) and 0.05 <= float(VenPW) <= 1.9):
             return False
@@ -101,7 +101,7 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, ARP, VRP, Reaction
             return False
         if not (is_float(ResponseFactor) and 1 <= float(ResponseFactor) <= 16):
             return False
-        if not ActivityThreshold != "Activity Threshold":
+        if not ActivityThreshold != "VL":
             return False
         if not (is_float(MaxSensorRate) and 50 <= float(MaxSensorRate) <= 175):
             return False
@@ -110,9 +110,9 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, ARP, VRP, Reaction
     if Name == "AAIR":
         if not (is_float(LRL) and 30 <= float(LRL) <= 175):
             return False
-        if not (is_float(URL) and 50 <= float(URL) <= 175):
+        if not (is_float(URL) and 60 <= float(URL) <= 175):
             return False
-        if not (is_float(AtrAMP) and 0 <= float(AtrAMP) <= 5):
+        if not (is_float(AtrAMP) and 0.5 <= float(AtrAMP) <= 5):
             return False
         if not (is_float(AtrPW) and 0.05 <= float(AtrPW) <= 1.9):
             return False
@@ -124,7 +124,7 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, ARP, VRP, Reaction
             return False
         if not (is_float(ResponseFactor) and 1 <= float(ResponseFactor) <= 16):
             return False
-        if not ActivityThreshold != "Activity Threshold":
+        if not ActivityThreshold != "VL":
             return False
         if not (is_float(MaxSensorRate) and 50 <= float(MaxSensorRate) <= 175):
             return False
@@ -133,9 +133,9 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, ARP, VRP, Reaction
     if Name == "VVIR":
         if not (is_float(LRL) and 30 <= float(LRL) <= 175):
             return False
-        if not (is_float(URL) and 50 <= float(URL) <= 175):
+        if not (is_float(URL) and 60 <= float(URL) <= 175):
             return False
-        if not (is_float(VenAMP) and 0 <= float(VenAMP) <= 5):
+        if not (is_float(VenAMP) and 0.5 <= float(VenAMP) <= 5):
             return False
         if not (is_float(VenPW) and 0.05 <= float(VenPW) <= 1.9):
             return False
@@ -147,7 +147,7 @@ def checkparams(Name, LRL, URL, AtrAMP, AtrPW, VenAMP, VenPW, ARP, VRP, Reaction
             return False
         if not (is_float(ResponseFactor) and 1 <= float(ResponseFactor) <= 16):
             return False
-        if not ActivityThreshold != "Activity Threshold":
+        if not ActivityThreshold != "VL":
             return False
         if not (is_float(MaxSensorRate) and 50 <= float(MaxSensorRate) <= 175):
             return False
@@ -201,7 +201,9 @@ class Mode:
         self.ActivityThreshold = ActivityThreshold
         self.MaxSensorRate = MaxSensorRate
 
-
+    def get_mode(self):
+        return self.name
+    
     def get_params(self):
         return self.LRL, self.URL, self.AtrAMP, self.AtrPW, self.VenAMP, self.VenPW, self.ARP, self.VRP, self.ReactionTime, self.RecoveryTime, self.ResponseFactor, self.ActivityThreshold, self.MaxSensorRate
         
@@ -223,6 +225,7 @@ class Window(ctk.CTk):
         # Initialize the user as an empty object
         self.newserial = None
         self.user = User("", "")  # Correctly initialize User
+        self.mode = None  # Initialize mode
         self.title("3K04 Assignment 1")
         self.geometry("800x600")
         self.configure(fg_color="white")
@@ -378,7 +381,7 @@ class Window(ctk.CTk):
 
         byte_1 = struct.pack('<B', mode_num)
         byte_2 = struct.pack('<B', 30 if (self.mode.LRL == '') else int(self.mode.LRL))
-        byte_3 = struct.pack('<B', 50 if (self.mode.URL == '') else int(self.mode.URL))
+        byte_3 = struct.pack('<B', 60 if (self.mode.URL == '') else int(self.mode.URL))
         bytes4_7 = struct.pack('<f', 0.5 if (self.mode.AtrAMP == '') else float(self.mode.AtrAMP))
         bytes8_11 = struct.pack('<f', 0.05 if (self.mode.AtrPW == '') else float(self.mode.AtrPW))
         bytes12_15 = struct.pack('<f', 0.5 if (self.mode.VenAMP == '') else float(self.mode.VenAMP))
@@ -396,19 +399,19 @@ class Window(ctk.CTk):
         
         mode_data = {
             "name": self.mode.name,
-            "LRL": self.mode.LRL,
-            "URL": self.mode.URL,
-            "AtrAMP": self.mode.AtrAMP,
-            "AtrPW": self.mode.AtrPW,
-            "VenAMP": self.mode.VenAMP,
-            "VenPW": self.mode.VenPW,
-            "ARP": self.mode.ARP,
-            "VRP": self.mode.VRP,
-            "ReactionTime": self.mode.ReactionTime,
-            "RecoveryTime": self.mode.RecoveryTime,
-            "ResponseFactor": self.mode.ResponseFactor,
-            "ActivityThreshold": self.mode.ActivityThreshold,
-            "MaxSensorRate": self.mode.MaxSensorRate
+            "LRL": "30" if self.mode.LRL == "" else self.mode.LRL,
+            "URL": "60" if self.mode.URL == "" else self.mode.URL,
+            "AtrAMP": "0.5" if self.mode.AtrAMP == "" else self.mode.AtrAMP,
+            "AtrPW": "0.05" if self.mode.AtrPW == "" else self.mode.AtrPW,
+            "VenAMP": "0.5" if self.mode.VenAMP == "" else self.mode.VenAMP,
+            "VenPW": "0.05" if self.mode.VenPW == "" else self.mode.VenPW,
+            "ARP": "150" if self.mode.ARP == "" else self.mode.ARP,
+            "VRP": "150" if self.mode.VRP == "" else self.mode.VRP,
+            "ReactionTime": "10" if self.mode.ReactionTime == "" else self.mode.ReactionTime,
+            "RecoveryTime": "2" if self.mode.RecoveryTime == "" else self.mode.RecoveryTime,
+            "ResponseFactor": "1" if self.mode.ResponseFactor == "" else self.mode.ResponseFactor,
+            "ActivityThreshold": "VL" if self.mode.ActivityThreshold == "" else self.mode.ActivityThreshold,
+            "MaxSensorRate": "50" if self.mode.MaxSensorRate == "" else self.mode.MaxSensorRate
         }
         
         try:
@@ -750,7 +753,7 @@ class Window(ctk.CTk):
         self.ResponseFactor_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Response Factor (1-16)")
         self.ResponseFactor_entry.grid(row=4, column=0, padx=5, pady=5, sticky="n")
 
-        self.ActivityThreshold_var = ctk.StringVar(value="Activity Threshold")  # Default value
+        self.ActivityThreshold_var = ctk.StringVar(value="VL")  # Default value
         self.ActivityThreshold_entry = ctk.CTkOptionMenu(self.parameters_frame, variable=self.ActivityThreshold_var, values=["VL", "L", "ML", "M", "MH", "H", "VH"], fg_color="white", text_color="gray")
         self.ActivityThreshold_entry.grid(row=5, column=0,columnspan=2, padx=5, pady=5, sticky="n")
 
@@ -798,7 +801,7 @@ class Window(ctk.CTk):
         self.ResponseFactor_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Response Factor (1-16)")
         self.ResponseFactor_entry.grid(row=4, column=0, padx=5, pady=5, sticky="n")
 
-        self.ActivityThreshold_var = ctk.StringVar(value="Activity Threshold")  # Default value
+        self.ActivityThreshold_var = ctk.StringVar(value="VL")  # Default value
         self.ActivityThreshold_entry = ctk.CTkOptionMenu(self.parameters_frame, variable=self.ActivityThreshold_var, values=["VL", "L", "ML", "M", "MH", "H", "VH"], fg_color="white", text_color="gray")
         self.ActivityThreshold_entry.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="n")
 
@@ -851,7 +854,7 @@ class Window(ctk.CTk):
         self.ResponseFactor_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Response Factor (1-16)")
         self.ResponseFactor_entry.grid(row=4, column=1, padx=5, pady=5, sticky="n")
 
-        self.ActivityThreshold_var = ctk.StringVar(value="Activity Threshold")  # Default value
+        self.ActivityThreshold_var = ctk.StringVar(value="VL")  # Default value
         self.ActivityThreshold_entry = ctk.CTkOptionMenu(self.parameters_frame, variable=self.ActivityThreshold_var, values=["VL", "L", "ML", "M", "MH", "H", "VH"], fg_color="white", text_color="gray")
         self.ActivityThreshold_entry.grid(row=5, column=0,padx=5, pady=5, sticky="n")
 
@@ -903,7 +906,7 @@ class Window(ctk.CTk):
         self.ResponseFactor_entry = ctk.CTkEntry(self.parameters_frame, placeholder_text="Response Factor (1-16)")
         self.ResponseFactor_entry.grid(row=4, column=1, padx=5, pady=5, sticky="n")
 
-        self.ActivityThreshold_var = ctk.StringVar(value="Activity Threshold")  # Default value
+        self.ActivityThreshold_var = ctk.StringVar(value="VL")  # Default value
         self.ActivityThreshold_entry = ctk.CTkOptionMenu(self.parameters_frame, variable=self.ActivityThreshold_var, values=["VL", "L", "ML", "M", "MH", "H", "VH"], fg_color="white", text_color="gray")
         self.ActivityThreshold_entry.grid(row=5, column=0, padx=5, pady=5, sticky="n")
 
@@ -1295,7 +1298,8 @@ class Window(ctk.CTk):
 
     def check_serial(self):
         username = self.user.get_username()
-        check_serial_port(username)
+        mode = self.pacemaker_mode_var.get()
+        check_serial_port(username,mode)
         self.after(ms= 20, func= self.check_serial)
         
 
