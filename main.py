@@ -240,7 +240,6 @@ class Window(ctk.CTk):
         port.port = 'COM6'
         port.timeout = 10
 
-
     def verify_params_json(self):
 
         try:
@@ -269,20 +268,9 @@ class Window(ctk.CTk):
             "MaxSensorRate": self.mode.MaxSensorRate
         }
 
-        for user in users:
-            if "modes" not in user:
-                user["modes"] = []
-            for i, mode in enumerate(user["modes"]):
-                if mode["name"] == mode_name:
-                    user["modes"][i] = mode_data
-                    break
-
-
-
-
     def verify_params(self):
         self.check_params_json()
-        self.after(ms= 20, func=self.check_params_json)
+        self.after(ms= 20, func=self.check_params_json)    
 
     def handle_register(self):
         username = self.username_entry.get()
@@ -1139,18 +1127,49 @@ class Window(ctk.CTk):
         egraphs_label = ctk.CTkLabel(self.egraphs_frame, text="Electrogram Plots", font=("Helvetica", 24))
         egraphs_label.grid(row=0, column=0, rowspan=1, padx=5, pady=5, sticky="n")
 
-        ventricle_label = ctk.CTkLabel(self.egraphs_frame, text="Ventricle Electrogram", font=("Helvetica", 16))
-        ventricle_label.grid(row=1, column=0, padx=5, pady=5, sticky="n")
+        # ventricle_label = ctk.CTkLabel(self.egraphs_frame, text="Ventricle Electrogram", font=("Helvetica", 16))
+        # ventricle_label.grid(row=1, column=0, padx=5, pady=5, sticky="n")
 
-        atrial_label = ctk.CTkLabel(self.egraphs_frame, text="Atrial Electrogram", font=("Helvetica", 16))
-        atrial_label.grid(row=8, column=0, padx=5, pady=5, sticky="n")
+        # atrial_label = ctk.CTkLabel(self.egraphs_frame, text="Atrial Electrogram", font=("Helvetica", 16))
+        # atrial_label.grid(row=8, column=0, padx=5, pady=5, sticky="n")
+
+         # Flags to track graph visibility
+        self.show_ventricular = True
+        self.show_atrium = True
+
+        # Create buttons
+        vent_button = ctk.CTkButton(self.egraphs_frame, text="Toggle Ventricular Graph", command=self.toggle_ventricular_graph)
+        vent_button.grid(row=1, column=0, padx=5, pady=5)
+        
+        atr_button = ctk.CTkButton(self.egraphs_frame, text="Toggle Atrium Graph", command=self.toggle_atrium_graph)
+        atr_button.grid(row=8, column=0, padx=5, pady=5)
+
+        # Initialize graphs
+        self.vent_canvas = self.ventricular_electrogram()
+        self.atr_canvas = self.atrium_electrogram()
+
+
 
         # Call the functions for making the plots
-        self.ventricular_electrogram()
-        self.atrium_electrogram()
+        # self.ventricular_electrogram()
+        # self.atrium_electrogram()
 
 
     # Function for creating the change password page when the change PW button is clicked
+    def toggle_ventricular_graph(self):
+        if self.show_ventricular:
+            self.vent_canvas.get_tk_widget().grid_remove()
+        else:
+            self.vent_canvas.get_tk_widget().grid()
+        self.show_ventricular = not self.show_ventricular
+
+    def toggle_atrium_graph(self):
+        if self.show_atrium:
+            self.atr_canvas.get_tk_widget().grid_remove()
+        else:
+            self.atr_canvas.get_tk_widget().grid()
+        self.show_atrium = not self.show_atrium
+
     def change_password_page(self):
 
         # Delete/Hide previous frames (navbar and content)
@@ -1258,6 +1277,8 @@ class Window(ctk.CTk):
         canvas.draw()
         canvas.get_tk_widget().grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 
+        return canvas
+
 
 
     def atrium_electrogram(self):
@@ -1293,6 +1314,8 @@ class Window(ctk.CTk):
         canvas = FigureCanvasTkAgg(fig, master=self.egraphs_frame)
         canvas.draw()
         canvas.get_tk_widget().grid(row=9, column=0, padx=5, pady=5, sticky="nsew")
+
+        return canvas
 
     def check_serial(self):
         check_serial_port()
