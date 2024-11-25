@@ -1194,7 +1194,7 @@ class Window(ctk.CTk):
 
         # Set the limits of our graph
         ax.set_xlim(-10000, 0)
-        ax.set_ylim(-5, 5)
+        ax.set_ylim(-1, 1)
 
         # Animation function (i is the frame)
         def animate(i):
@@ -1228,7 +1228,7 @@ class Window(ctk.CTk):
         line, = ax.plot([], [], lw=3)
 
         # Set the limits of our graph
-        ax.set_ylim(-5, 5)
+        ax.set_ylim(-1, 1)
         ax.set_xlim(-10000, 0)
 
         # Animation function (i is the frame)
