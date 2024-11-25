@@ -239,7 +239,49 @@ class Window(ctk.CTk):
         port.port = 'COM6'
         port.timeout = 10
 
-        
+
+    def verify_params_json(self):
+
+        try:
+            with open("parameters.json", "r") as f:
+                users = json.load(f)
+        except FileNotFoundError:
+            users = []
+
+        self.mode = Mode()
+        mode_name = self.pacemaker_mode_var.get()
+
+        mode_data = {
+            "name": self.mode.name,
+            "LRL": self.mode.LRL,
+            "URL": self.mode.URL,
+            "AtrAMP": self.mode.AtrAMP,
+            "AtrPW": self.mode.AtrPW,
+            "VenAMP": self.mode.VenAMP,
+            "VenPW": self.mode.VenPW,
+            "ARP": self.mode.ARP,
+            "VRP": self.mode.VRP,
+            "ReactionTime": self.mode.ReactionTime,
+            "RecoveryTime": self.mode.RecoveryTime,
+            "ResponseFactor": self.mode.ResponseFactor,
+            "ActivityThreshold": self.mode.ActivityThreshold,
+            "MaxSensorRate": self.mode.MaxSensorRate
+        }
+
+        for user in users:
+            if "modes" not in user:
+                user["modes"] = []
+            for i, mode in enumerate(user["modes"]):
+                if mode["name"] == mode_name:
+                    user["modes"][i] = mode_data
+                    break
+
+
+
+
+    def verify_params(self):
+        self.check_params_json()
+        self.after(ms= 20, func=self.check_params_json)
 
     def handle_register(self):
         username = self.username_entry.get()
@@ -313,6 +355,44 @@ class Window(ctk.CTk):
             self.valid_input_label.grid_remove()
             self.invalid_input_label.grid(row=6, column=0, padx=5, pady=5, sticky="n")
             return
+
+        mode_num = 0
+        if self.mode.name == 'AOO':
+            mode_num = 1
+        elif self.mode.name == 'VOO':
+            mode_num = 2
+        elif self.mode.name == 'AAI':
+            mode_num = 3
+        if self.mode.name == 'VVI':
+            mode_num = 4
+        elif self.mode.name == 'AOOR':
+            mode_num = 5
+        elif self.mode.name == 'VOOR':
+            mode_num = 6
+        if self.mode.name == 'AAIR':
+            mode_num = 7
+        elif self.mode.name == 'VVIR':
+            mode_num = 8
+
+        byte_0 = struct.pack('<B', 40)
+
+        byte_1 = struct.pack('<B', mode_num)
+        byte_2 = struct.pack('<B', 0 if (self.mode.LRL == '') else int(self.mode.LRL))
+        byte_3 = struct.pack('<B', 0 if (self.mode.URL == '') else int(self.mode.URL))
+        bytes4_7 = struct.pack('<f', 0 if (self.mode.AtrAMP == '') else float(self.mode.AtrAMP))
+        bytes8_11 = struct.pack('<f', 0 if (self.mode.AtrPW == '') else float(self.mode.AtrPW))
+        bytes12_15 = struct.pack('<f', 0 if (self.mode.VenAMP == '') else float(self.mode.VenAMP))
+        bytes16_19 = struct.pack('<f', 0 if (self.mode.VenPW == '') else float(self.mode.VenPW))
+        bytes20_21 = struct.pack('<H', 0 if (self.mode.VRP == '') else int(self.mode.VRP))
+        bytes22_23 = struct.pack('<H', 0 if (self.mode.ARP == '') else int(self.mode.ARP))
+        byte_24 = struct.pack('<B', 0 if (self.mode.MaxSensorRate == '') else int(self.mode.MaxSensorRate))
+        byte_25 = struct.pack('<B', 0 if (self.mode.ReactionTime == '') else int(self.mode.ReactionTime))
+        byte_26 = struct.pack('<B', 0 if (self.mode.ResponseFactor == '') else int(self.mode.ResponseFactor))
+        byte_27 = struct.pack('<B', 0 if (self.mode.RecoveryTime == '') else int(self.mode.RecoveryTime))
+        byte_28 = struct.pack('<B', 0 if (self.mode.ActivityThreshold == '') else int(self.activity_thresh_converter(self.mode.ActivityThreshold)))
+
+        byte_arr = byte_0 + byte_1 + byte_2 + byte_3 + bytes4_7 + bytes8_11 + bytes12_15 + bytes16_19 + bytes20_21 + bytes22_23 + byte_24 + byte_25 + byte_26 + byte_27 + byte_28
+        send_data(byte_arr)
         
         mode_data = {
             "name": self.mode.name,
@@ -353,6 +433,27 @@ class Window(ctk.CTk):
 
         with open("parameters.json", "w") as f:
             json.dump(users, f, indent=4)
+
+        self.verify_params()
+
+    def activity_thresh_converter(self, thresh):
+        # "VL", "L", "ML", "M", "MH", "H", "VH"
+        if thresh == 'VL':
+            return 0
+        elif thresh == 'L':
+            return 1
+        elif thresh == 'ML':
+            return 2
+        elif thresh == 'M':
+            return 3
+        elif thresh == 'MH':
+            return 4
+        elif thresh == 'H':
+            return 5
+        elif thresh == 'VH':
+            return 6
+        else:
+            return 0
 
 
     def init_login_page(self):
@@ -1135,15 +1236,15 @@ class Window(ctk.CTk):
         line, = ax.plot([], [], lw=2)
 
         # Set the limits of our graph
-        ax.set_xlim(0, 5000)
-        ax.set_ylim(-1.5, 5)
+        ax.set_xlim(-10000, 0)
+        ax.set_ylim(-5, 5)
 
         # Animation function (i is the frame)
         def animate(i):
             
             _, vent_data = get_atr_vent_graphing_data()
            
-            n = np.arange(len(vent_data))
+            n = np.arange(-2*len(vent_data), 0, 2)
 
             # Append the values to the previously empty x and y data sets
             line.set_ydata(vent_data)
@@ -1170,19 +1271,20 @@ class Window(ctk.CTk):
         line, = ax.plot([], [], lw=3)
 
         # Set the limits of our graph
-        ax.set_xlim(0, 5000)
-        ax.set_ylim(-1.5, 5)
+        ax.set_ylim(-5, 5)
+        ax.set_xlim(-10000, 0)
 
         # Animation function (i is the frame)
         def animate(i):
 
             atr_data, _ = get_atr_vent_graphing_data()
 
-            n = np.arange(len(atr_data))
+            n = np.arange(-2*len(atr_data), 0, 2)
 
             # Append the values to the previously empty x and y data sets
             line.set_ydata(atr_data)
             line.set_xdata(n)
+
             return line,
 
         # Call the animation function and draw to the egraphs_frame
@@ -1211,8 +1313,8 @@ class Window(ctk.CTk):
 
     def isConnected(self):
         """Returns the connection status as a string."""
-        if self.newserial and self.newserial.is_open:
-            return f"Pacemaker is connected on {self.newserial.port}"
+        if connection_status():
+            return f"Pacemaker is connected on {get_port()}"
         else:
             return "Pacemaker is not connected. Please check the connection."
 
@@ -1223,8 +1325,8 @@ class Window(ctk.CTk):
 
     def disconnect_pm(self):
         """Attempts to disconnect from the pacemaker."""
-        if self.newserial and self.newserial.is_open:
-            self.newserial.close()
+        if connection_status():
+            close_serial()
             status_text = "Disconnected from pacemaker."
         else:
             status_text = "No connection to disconnect."

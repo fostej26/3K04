@@ -15,9 +15,24 @@ def connect_serial_port():
     except serial.SerialException as e:
         return e
     
+def connection_status():
+    return port.is_open
+
+def get_port():
+    return port.port
+
+def close_serial():
+    port.close()
+    global counter
+    counter = 0
+
+def get_current_serial_counter():
+    return counter
+    
 data_counts = 0
 arr = 0
 
+counter =  0
 atr_graphing_data = []
 vent_graphing_data = []
 
@@ -181,6 +196,8 @@ def check_serial_port(username):
         if len(first_byte) == 1 and int.from_bytes(first_byte, byteorder='big') == 7:
             arr = bytearray(108)
             port.readinto(arr)
+
+            counter += 1
 
             # Parse the byte array into parameters
             params = Params(arr)
