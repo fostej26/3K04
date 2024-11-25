@@ -241,7 +241,7 @@ class Window(ctk.CTk):
         port.timeout = 10
 
 
-    def check_params_json(self):
+    def verify_params_json(self):
 
         try:
             with open("parameters.json", "r") as f:
@@ -280,7 +280,7 @@ class Window(ctk.CTk):
 
 
 
-    def check_params(self):
+    def verify_params(self):
         self.check_params_json()
         self.after(ms= 20, func=self.check_params_json)
 
@@ -434,6 +434,8 @@ class Window(ctk.CTk):
 
         with open("parameters.json", "w") as f:
             json.dump(users, f, indent=4)
+
+        self.verify_params()
 
     def activity_thresh_converter(self, thresh):
         # "VL", "L", "ML", "M", "MH", "H", "VH"
