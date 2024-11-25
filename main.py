@@ -13,7 +13,7 @@ import json
 import serial 
 import struct
 
-from serial_transmission_remastered import get_atr_vent_graphing_data, connect_serial_port, check_serial_port
+from serial_transmission_remastered import *
 
 from yarl import URL
 
@@ -1136,15 +1136,15 @@ class Window(ctk.CTk):
         line, = ax.plot([], [], lw=2)
 
         # Set the limits of our graph
-        ax.set_xlim(0, 5000)
-        ax.set_ylim(-1.5, 5)
+        ax.set_xlim(-5000, 0)
+        ax.set_ylim(-5, 5)
 
         # Animation function (i is the frame)
         def animate(i):
             
             _, vent_data = get_atr_vent_graphing_data()
            
-            n = np.arange(len(vent_data))
+            n = np.arange(-len(vent_data), 0)
 
             # Append the values to the previously empty x and y data sets
             line.set_ydata(vent_data)
@@ -1171,19 +1171,20 @@ class Window(ctk.CTk):
         line, = ax.plot([], [], lw=3)
 
         # Set the limits of our graph
-        ax.set_xlim(0, 5000)
-        ax.set_ylim(-1.5, 5)
+        ax.set_ylim(-5, 5)
+        ax.set_xlim(-5000, 0)
 
         # Animation function (i is the frame)
         def animate(i):
 
             atr_data, _ = get_atr_vent_graphing_data()
 
-            n = np.arange(len(atr_data))
+            n = np.arange(-len(atr_data), 0)
 
             # Append the values to the previously empty x and y data sets
             line.set_ydata(atr_data)
             line.set_xdata(n)
+
             return line,
 
         # Call the animation function and draw to the egraphs_frame
@@ -1209,8 +1210,8 @@ class Window(ctk.CTk):
 
     def isConnected(self):
         """Returns the connection status as a string."""
-        if self.newserial and self.newserial.is_open:
-            return f"Pacemaker is connected on {self.newserial.port}"
+        if connection_status():
+            return f"Pacemaker is connected on {get_port()}"
         else:
             return "Pacemaker is not connected. Please check the connection."
 
@@ -1221,8 +1222,8 @@ class Window(ctk.CTk):
 
     def disconnect_pm(self):
         """Attempts to disconnect from the pacemaker."""
-        if self.newserial and self.newserial.is_open:
-            self.newserial.close()
+        if connection_status():
+            close_serial()
             status_text = "Disconnected from pacemaker."
         else:
             status_text = "No connection to disconnect."
