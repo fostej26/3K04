@@ -47,22 +47,55 @@ vent_graphing_data = []
 # Class to store parameters
 class Params:
     def __init__(self, data):
-        self.mode = data[0]
-        self.lrl = data[1]
-        self.url = data[2]
-        self.atr_pulse_amplitude = struct.unpack('f', data[3:7])
-        self.atr_pulse_width = struct.unpack('f', data[7:11])
-        self.vent_pulse_amplitude = struct.unpack('f', data[11:15])
-        self.vent_pulse_width = struct.unpack('f', data[15:19])
-        self.vrp = struct.unpack('H', data[19:21])
-        self.arp = struct.unpack('H', data[21:23])
-        self.max_sensor_rate = data[23]
-        self.reaction_time = data[24]
-        self.response_factor = data[25]
-        self.recovery_time = data[26]
-        self.activity_threshold = data[27]
-        self.atrial_data = list(struct.unpack('10f', data[28:68]))
-        self.ventricle_data = list(struct.unpack('10f', data[68:108]))
+        self.name = data[0]
+        if self.name == 1:
+            self.name = 'AOO'
+        elif self.name == 2:
+            self.name = 'VOO'
+        elif self.name == 3:
+            self.name = 'AAI'
+        elif self.name == 4:
+            self.name = 'VVI'
+        elif self.name == 5:
+            self.name = 'AOOR'
+        elif self.name == 6:
+            self.name = 'VOOR'
+        elif self.name == 7:
+            self.name = 'AAIR'
+        elif self.name == 8:
+            self.name = 'VVIR'
+        else:
+            self.name = 'Unknown'
+
+        self.LRL = str(data[1])
+        self.URL = str(data[2])
+        self.AtrAMP = str(struct.unpack('f', data[3:7])[0])
+        self.AtrPW = str(struct.unpack('f', data[7:11])[0])
+        self.VenAMP = str(struct.unpack('f', data[11:15])[0])
+        self.VenPW = str(struct.unpack('f', data[15:19])[0])
+        self.ARP = str(struct.unpack('H', data[21:23])[0])
+        self.VRP = str(struct.unpack('H', data[19:21])[0])
+        self.ReactionTime = str(data[24])
+        self.RecoveryTime = str(data[26])
+        self.ResponseFactor = str(data[25])
+        self.ActivityThreshold = str(data[27])
+
+        if self.ActivityThreshold == 1:
+            self.ActivityThreshold = 'VL'
+        elif self.ActivityThreshold == 2:
+            self.ActivityThreshold = 'L'
+        elif self.ActivityThreshold == 3:
+            self.ActivityThreshold = 'ML'
+        elif self.ActivityThreshold == 4:
+            self.ActivityThreshold = 'M'
+        elif self.ActivityThreshold == 5:
+            self.ActivityThreshold = 'MH'
+        elif self.ActivityThreshold == 6:
+            self.ActivityThreshold = 'H'
+        elif self.ActivityThreshold == 7:
+            self.ActivityThreshold = 'VH'
+
+        self.MaxSensorRate = str(data[23])
 
     def to_dict(self):
 
