@@ -8,7 +8,7 @@ port = serial.Serial()
 def connect_serial_port():
     try:
         port.baudrate = 115200
-        port.port = 'COM4'
+        port.port = 'COM5'
         port.timeout = 10
 
         port.open()
