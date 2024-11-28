@@ -229,19 +229,23 @@ class Window(ctk.CTk):
         self.x = []
         self.y = []
 
+        #Initialize serial vars
         port = serial.Serial()
         port.baudrate = 115200
         port.port = 'COM6'
         port.timeout = 10
-
+    
+    #Function to verify pacemaker data matches json from DCM
     def verify_params_json(self):
-
+        # Read json
         try:
             with open("parameters.json", "r") as f:
                 users = json.load(f)
         except FileNotFoundError:
             users = []
 
+
+        # Initialize mode object and attributes
         self.mode = Mode()
         mode_name = self.pacemaker_mode_var.get()
 
@@ -262,34 +266,39 @@ class Window(ctk.CTk):
             "MaxSensorRate": self.mode.MaxSensorRate
         }
 
+    # Check the if json matches pacemaker every serial transmission
     def verify_params(self):
         self.check_params_json()
         self.after(ms= 20, func=self.check_params_json)    
 
+    # ISR for register button
     def handle_register(self):
         username = self.username_entry.get()
         password = self.password_entry.get()
-        
 
+        # Read users file
         try:
             with open("users.txt", "r") as f:
                 users = f.read().splitlines()
-
+            # 10 users constraint
             if len(users) >= 10:
                 self.message_label.configure(text="User limit reached. Cannot register more users.", text_color="red")
-                return
+                return  
 
+            # detect repeat users
             for user in users:
                 if username == user.split()[0]:
                     self.message_label.configure(
                         text="Username already registered. Please sign in or choose a new username.")
                     return
 
+            # add user to users file
             with open("users.txt", "a") as f:
                 f.write(f"{username} {self.hash_password(password)}\n")
                 self.user = User(username, password)
             self.message_label.configure(text="Registration successful!", text_color="green")
 
+            # clear for security
             self.username_entry.delete(0, 'end')
             self.password_entry.delete(0, 'end')
 
@@ -301,13 +310,14 @@ class Window(ctk.CTk):
             self.password_entry.delete(0, 'end')
 
 
-    #CURRENTLY DOES NOT WORK, ONLY RELEVANT FOR A2
+    # ISR for save parameters button
     def save_parameters(self):
         username = self.user.get_username()
         self.mode = Mode()
         mode_name = self.pacemaker_mode_var.get()
         self.mode.set_name(mode_name)
         
+        # helper for retriving empty class attributes
         def safe_get(entry, default=""):
             try:
                 output = entry.get()
@@ -315,6 +325,7 @@ class Window(ctk.CTk):
             except:
                 return ""
 
+        # set mode attributes
         self.mode.set_params(
             LRL=safe_get(self.LRL_entry),
             URL=safe_get(self.URL_entry),
@@ -331,6 +342,7 @@ class Window(ctk.CTk):
             MaxSensorRate=safe_get(getattr(self, 'MaxSensorRate_entry', None))
         )
 
+        # check if parameters are valid
         if checkparams(self.mode.name, self.mode.LRL, self.mode.URL, self.mode.AtrAMP, self.mode.AtrPW, self.mode.VenAMP, self.mode.VenPW, self.mode.ARP, self.mode.VRP, self.mode.ReactionTime, self.mode.RecoveryTime, self.mode.ResponseFactor, self.mode.ActivityThreshold, self.mode.MaxSensorRate):
             self.invalid_input_label.grid_remove()
             self.valid_input_label.grid(row=6, column=0, padx=5, pady=5, sticky="n")
@@ -357,6 +369,8 @@ class Window(ctk.CTk):
         elif self.mode.name == 'VVIR':
             mode_num = 8
 
+
+        # pack mode data and account for invalid inputs
         byte_0 = struct.pack('<B', 40)
 
         byte_1 = struct.pack('<B', mode_num)
@@ -394,6 +408,7 @@ class Window(ctk.CTk):
             "MaxSensorRate": "50" if self.mode.MaxSensorRate == "" else self.mode.MaxSensorRate
         }
         
+        #send data to json under corresponding username and mode
         try:
             with open("parameters.json", "r") as f:
                 users = json.load(f)
@@ -419,6 +434,7 @@ class Window(ctk.CTk):
 
         self.verify_params()
 
+    # helper for converting act. thresh string to int.
     def activity_thresh_converter(self, thresh):
         # "VL", "L", "ML", "M", "MH", "H", "VH"
         if thresh == 'VL':
@@ -1149,7 +1165,7 @@ class Window(ctk.CTk):
         # self.atrium_electrogram()
 
 
-    # Function for creating the change password page when the change PW button is clicked
+    # Functions for toggling the visibility of the graphs
     def toggle_ventricular_graph(self):
         if self.show_ventricular:
             self.vent_canvas.get_tk_widget().grid_remove()
@@ -1164,6 +1180,7 @@ class Window(ctk.CTk):
             self.atr_canvas.get_tk_widget().grid()
         self.show_atrium = not self.show_atrium
 
+    # Function for changing password
     def change_password_page(self):
 
         # Delete/Hide previous frames (navbar and content)
@@ -1311,13 +1328,12 @@ class Window(ctk.CTk):
 
         return canvas
 
+    # Function for checking serial connections and verifying json values
     def check_serial(self):
         username = self.user.get_username()
         mode = self.pacemaker_mode_var.get()
         check_serial_port(username,mode)
         self.after(ms= 20, func= self.check_serial)
-        
-
 
     def connect_pm(self):
         """Attempts to connect to the pacemaker."""
